@@ -1,0 +1,32 @@
+services:
+  # Наш PHP API
+  backend:
+    build: ./backend
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www/html
+    depends_on:
+      - db
+
+  # Наш React додаток
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      # Цей рядок не дає Докеру затерти папку node_modules зсередини контейнера
+      - /app/node_modules
+    environment:
+      # Важливо для Windows, щоб React миттєво оновлював сторінку при зміні коду
+      - CHOKIDAR_USEPOLLING=true 
+
+  # База даних MySQL
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: pc_builder
+    ports:
+      - "3306:3306"
