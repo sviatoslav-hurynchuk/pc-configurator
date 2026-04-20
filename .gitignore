@@ -1,0 +1,33 @@
+# =========================
+# IDE та Операційна система
+# =========================
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# =========================
+# Фронтенд (React / Vite)
+# =========================
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+frontend/.env
+frontend/.env.*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# Бекенд (PHP)
+# =========================
+backend/vendor/
+backend/.env
+
+# =========================
+# Docker та База даних
+# =========================
+# Якщо в майбутньому налаштуєш збереження даних БД у локальну папку:
+mysql_data/
+docker_data/
