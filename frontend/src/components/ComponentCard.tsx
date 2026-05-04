@@ -2,13 +2,15 @@ import type {PcComponent} from '../types';
 
 interface Props {
     item: PcComponent;
+    onAdd: () => void;
 }
 
-export default function ComponentCard({ item }: Props) {
+export default function ComponentCard({ item, onAdd }: Props) {
     return (
         <div style={{
             border: '1px solid #ccc', borderRadius: '8px', padding: '16px',
-            margin: '10px', width: '250px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            margin: '10px', width: '250px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            display: 'flex', flexDirection: 'column'
         }}>
             <img
                 src={item.image_url || ''}
@@ -29,11 +31,13 @@ export default function ComponentCard({ item }: Props) {
                 </ul>
             </div>
 
-            <button style={{
-                width: '100%', padding: '10px', marginTop: '10px',
-                backgroundColor: '#3498db', color: 'white', border: 'none',
-                borderRadius: '4px', cursor: 'pointer'
-            }}>
+            <button
+                onClick={onAdd}
+                style={{
+                    width: '100%', padding: '10px', marginTop: 'auto', // marginTop: 'auto' притискає кнопку донизу
+                    backgroundColor: '#3498db', color: 'white', border: 'none',
+                    borderRadius: '4px', cursor: 'pointer'
+                }}>
                 Add to Build
             </button>
         </div>
