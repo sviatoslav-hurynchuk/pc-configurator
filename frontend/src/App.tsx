@@ -4,7 +4,6 @@ import ComponentCard from './components/ComponentCard';
 import type {PcComponent} from './types';
 
 function App() {
-    // Вказуємо TS, що цей масив міститиме лише об'єкти PcComponent
     const [components, setComponents] = useState<PcComponent[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
