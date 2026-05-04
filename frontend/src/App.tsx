@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { fetchComponents } from './services/api';
-import ComponentCard from './components/ComponentCard';
 import type { PcComponent } from './types';
+import { PC_CATEGORIES } from './constants';
 
 function App() {
     const [components, setComponents] = useState<PcComponent[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
     const [build, setBuild] = useState<Record<number, PcComponent>>({});
+    const [activeCategory, setActiveCategory] = useState<number | null>(null);
 
     useEffect(() => {
         const loadData = async () => {
@@ -23,63 +24,132 @@ function App() {
             ...prevBuild,
             [item.category_id]: item
         }));
+        setActiveCategory(null);
+    };
+
+    const removeComponent = (categoryId: number) => {
+        setBuild(prev => {
+            const newBuild = { ...prev };
+            delete newBuild[categoryId];
+            return newBuild;
+        });
     };
 
     const totalPrice = Object.values(build).reduce((sum, item) => sum + parseFloat(item.price), 0);
-    const totalPower = Object.values(build).reduce((sum, item) => sum + item.power_draw_watts, 0);
+    const totalItems = Object.values(build).length;
 
-    if (loading) {
-        return <h2 style={{ textAlign: 'center', marginTop: '50px' }}>Loading catalog...</h2>;
-    }
+    if (loading) return <h2 style={{ textAlign: 'center', marginTop: '50px' }}>Завантаження...</h2>;
 
     return (
-        <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '1200px', margin: '0 auto', display: 'flex', gap: '20px' }}>
+        <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '30px' }}>
 
-            <div style={{ flex: '2' }}>
-                <h1>PC Builder Catalog</h1>
-                <p>Select components for your build.</p>
+            <div style={{ flex: '7' }}>
+                <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>Конфігуратор комп'ютера</h1>
+                <h3 style={{ color: '#666', marginBottom: '15px' }}>Базові *</h3>
 
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', marginTop: '20px' }}>
-                    {components.length === 0 ? (
-                        <p>No items found.</p>
-                    ) : (
-                        components.map(item => (
-                            <ComponentCard key={item.id} item={item} onAdd={() => addToBuild(item)} />
-                        ))
-                    )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    {PC_CATEGORIES.map(category => {
+                        const selectedItem = build[category.id];
+                        const isExpanded = activeCategory === category.id;
+
+                        const categoryProducts = components.filter(c => c.category_id === category.id);
+
+                        return (
+                            <div key={category.id} style={{
+                                border: '1px solid #e0e0e0',
+                                borderRadius: '8px',
+                                backgroundColor: selectedItem && !isExpanded ? '#f4f9e9' : '#fff',
+                                overflow: 'hidden'
+                            }}>
+                                <div style={{
+                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                    padding: '20px', backgroundColor: isExpanded ? '#f9f9f9' : 'transparent'
+                                }} onClick={() => setActiveCategory(isExpanded ? null : category.id)}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px', fontWeight: 'bold' }}>
+                                        <div style={{ width: '40px', height: '40px', border: '1px dashed #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            {category.icon}
+                                        </div>
+                                        <span>{category.name}</span>
+                                    </div>
+
+                                    {selectedItem && !isExpanded ? (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                            <span style={{ fontSize: '14px' }}>{selectedItem.name}</span>
+                                            <strong style={{ whiteSpace: 'nowrap' }}>{selectedItem.price} ₴</strong>
+                                            <button onClick={() => setActiveCategory(category.id)} style={{ padding: '8px 15px', borderRadius: '20px', border: '1px solid #ccc', background: '#fff', cursor: 'pointer' }}>
+                                                Замінити
+                                            </button>
+                                            <button onClick={() => removeComponent(category.id)} style={{ padding: '8px 15px', borderRadius: '20px', border: '1px solid #ccc', background: '#fff', cursor: 'pointer' }}>
+                                                ✕
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            style={{ padding: '10px 20px', borderRadius: '20px', border: 'none', background: isExpanded ? '#e0e0e0' : '#f1f1f1', fontWeight: 'bold', cursor: 'pointer' }}
+                                        >
+                                            {isExpanded ? 'Згорнути' : '+ Додати'}
+                                        </button>
+                                    )}
+                                </div>
+
+                                {isExpanded && (
+                                    <div style={{ padding: '20px', borderTop: '1px solid #e0e0e0' }}>
+                                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                            <tbody>
+                                            {categoryProducts.map(product => (
+                                                <tr key={product.id} style={{ borderBottom: '1px solid #eee' }}>
+                                                    <td style={{ padding: '15px 0' }}>
+                                                        <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{product.name}</div>
+                                                    </td>
+                                                    <td style={{ textAlign: 'center', color: '#f39c12' }}>★ 4.8</td>
+                                                    <td style={{ textAlign: 'right', fontWeight: 'bold', fontSize: '16px' }}>{product.price} ₴</td>
+                                                    <td style={{ textAlign: 'right' }}>
+                                                        <button
+                                                            onClick={() => addToBuild(product)}
+                                                            style={{ padding: '8px 20px', borderRadius: '20px', border: '1px solid #ccc', background: '#fff', fontWeight: 'bold', cursor: 'pointer', marginLeft: '15px' }}>
+                                                            + Обрати
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
 
-            <div style={{ flex: '1', backgroundColor: '#f1f2f6', padding: '20px', borderRadius: '8px', height: 'fit-content', position: 'sticky', top: '20px' }}>
-                <h2>Your Build</h2>
 
-                {Object.values(build).length === 0 ? (
-                    <p style={{ color: '#7f8fa6' }}>No components selected yet.</p>
-                ) : (
-                    <ul style={{ listStyle: 'none', padding: 0 }}>
-                        {Object.values(build).map(item => (
-                            <li key={item.id} style={{ borderBottom: '1px solid #dcdde1', padding: '10px 0' }}>
-                                <strong>{item.name}</strong> <br/>
-                                <span style={{ color: '#2ecc71' }}>${item.price}</span> | <span style={{ color: '#e1b12c' }}>{item.power_draw_watts}W</span>
-                            </li>
-                        ))}
-                    </ul>
-                )}
 
-                <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '2px solid #2f3640' }}>
-                    <h3>Total Price: <span style={{ color: '#2ecc71' }}>${totalPrice.toFixed(2)}</span></h3>
-                    <h3>Estimated Power: <span style={{ color: '#e1b12c' }}>{totalPower}W</span></h3>
 
-                    <button style={{
-                        width: '100%', padding: '12px', marginTop: '10px',
-                        backgroundColor: '#2ecc71', color: 'white', border: 'none',
-                        borderRadius: '4px', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 'bold'
-                    }} disabled={Object.values(build).length === 0}>
-                        Save Build
+            <div style={{ flex: '3', padding: '25px', height: 'fit-content', position: 'sticky', top: '20px', backgroundColor: '#fff' }}>
+                <span>Уся ваша збірка: <strong>{totalItems} / {PC_CATEGORIES.length}</strong></span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', fontSize: '14px' }}>
+                    <a href="#" style={{ color: '#000', textDecoration: 'none', fontWeight: 'bold' }}>Дивитись збірку</a>
+                </div>
+
+                <div style={{ width: '100%', height: '6px', backgroundColor: '#eee', borderRadius: '3px', marginBottom: '20px' }}>
+                    <div style={{ width: `${(totalItems / PC_CATEGORIES.length) * 100}%`, height: '100%', backgroundColor: '#a5c926', borderRadius: '3px', transition: 'width 0.3s ease' }}></div>
+                </div>
+                <div style={{ flex: '3', border: '1px solid #e0e0e0', padding: '25px', borderRadius: '8px', height: 'fit-content', position: 'sticky', top: '20px', backgroundColor: '#fff' }}>
+
+
+                <div style={{ padding: '15px', border: '1px solid #e0e0e0', borderRadius: '8px', marginBottom: '20px' }}>
+                    <div style={{ color: '#a5c926', fontWeight: 'bold', marginBottom: '10px' }}>✓ Комплектуючі сумісні</div>
+                    <div style={{ color: '#e74c3c', fontSize: '14px' }}>↓ {PC_CATEGORIES.length - totalItems} елементів не вистачає до повної збірки</div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '20px' }}>
+                    <h2 style={{ color: '#e67e22', margin: 0, fontSize: '28px' }}>{totalPrice.toFixed(0)} ₴</h2>
+                    <button style={{ padding: '15px 40px', backgroundColor: '#a5c926', color: '#fff', border: 'none', borderRadius: '30px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>
+                        Купити
                     </button>
                 </div>
             </div>
-
+            </div>
         </div>
     );
 }
