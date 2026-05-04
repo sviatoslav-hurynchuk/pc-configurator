@@ -14,7 +14,7 @@ export default function ComponentCard({ item }: Props) {
                 src={item.image_url || ''}
                 alt={item.name}
                 style={{ width: '100%', height: '150px', objectFit: 'contain' }}
-                onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=No+Image'; }}
+                onError={(e) => { (e.target as HTMLImageElement).src = 'https://picsum.photos/300/200?random=1'; }}
             />
             <h3 style={{ fontSize: '1.1rem', margin: '10px 0' }}>{item.name}</h3>
             <p style={{ color: '#666', fontSize: '0.9rem' }}>{item.description}</p>
