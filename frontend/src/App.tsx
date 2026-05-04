@@ -176,8 +176,10 @@ function App() {
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '20px' }}>
 
-                        <h2 style={{ color: '#e67e22', margin: 0, fontSize: '28px' }}>{totalPrice.toFixed(0)} ₴</h2>
-
+                        <div>
+                            <span style={{textDecoration: 'line-through', color: '#999', fontSize: '14px'}}>{(totalPrice * 1.05).toFixed(0)} ₴</span>
+                            <h2 style={{ color: '#e67e22', margin: 0, fontSize: '28px' }}>{totalPrice.toFixed(0)} ₴</h2>
+                        </div>
                         <button style={{ padding: '15px 40px', backgroundColor: '#a5c926', color: '#fff', border: 'none', borderRadius: '30px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>
 
                             Купити
