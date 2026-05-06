@@ -1,10 +1,14 @@
 <?php
+namespace App\Core;
+
+use PDO;
+use PDOException;
 
 class Database {
+    private static ?Database $instance = null;
     private PDO $pdo;
 
-    public function __construct() {
-        // We use 'db' as the host because that is the service name in docker-compose.yml
+    private function __construct() {
         $host = 'db';
         $db   = 'pc_builder';
         $user = 'root';
@@ -12,7 +16,6 @@ class Database {
         $charset = 'utf8mb4';
 
         $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -21,10 +24,17 @@ class Database {
 
         try {
             $this->pdo = new PDO($dsn, $user, $pass, $options);
-        } catch (\PDOException $e) {
-            // Re-throw exception to be caught by the entry point
-            throw new \PDOException($e->getMessage(), (int)$e->getCode());
+        } catch (PDOException $e) {
+            throw new PDOException($e->getMessage(), (int)$e->getCode());
         }
+    }
+
+    // Singleton
+    public static function getInstance(): Database {
+        if (self::$instance === null) {
+            self::$instance = new Database();
+        }
+        return self::$instance;
     }
 
     public function getConnection(): PDO {
