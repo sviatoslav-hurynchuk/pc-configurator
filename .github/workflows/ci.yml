@@ -32,7 +32,7 @@ jobs:
             
 
       - name: Import Database structure
-        run: mysql -h 127.0.0.1 -u root -proot pc_builder < backend/database/init.sql
+        run: mysql -h 127.0.0.1 -u root -proot pc_builder < database/init.sql
 
       - name: Run PHPUnit
         run: ./vendor/bin/phpunit --bootstrap vendor/autoload.php tests/
