@@ -5,7 +5,7 @@ import {PC_CATEGORIES} from './constants.tsx';
 import {BsEmojiFrown} from "react-icons/bs";
 import { useContext } from 'react'; // Додаємо до існуючого імпорту useState, useEffect
 import { AuthContext } from './context/AuthContext';
-import { logoutUser } from './services/api';
+import { logoutUser, saveBuild  } from './services/api';
 import AuthModal from './components/AuthModal';
 
 function App() {
@@ -46,6 +46,33 @@ function App() {
             delete newBuild[categoryId];
             return newBuild;
         });
+    };
+
+    const handleSaveBuild = async () => {
+        if (!user) {
+            setIsAuthModalOpen(true);
+            return;
+        }
+
+        const componentIds = Object.values(build)
+            .filter((item: any) => item !== null)
+            .map((item: any) => item.id);
+
+        if (componentIds.length === 0) {
+            alert('Збірка порожня. Додайте хоча б одну деталь.');
+            return;
+        }
+
+        try {
+            const res = await saveBuild({ componentIds, totalPrice });
+            if (res.status === 'success') {
+                alert('Збірку успішно збережено!');
+            } else {
+                alert(res.message || 'Помилка збереження');
+            }
+        } catch (err) {
+            alert('Помилка з\'єднання з сервером');
+        }
     };
 
     const totalPrice = Object.values(build).reduce((sum, item) => sum + parseFloat(item.price), 0);
@@ -341,7 +368,6 @@ function App() {
 
                         {totalItems === 0 ? (
 
-                            // --- ВАРІАНТ КОЛИ НІЧОГО НЕ ОБРАНО ---
                             <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
                                 <div style={{
                                     width: '45px', height: '45px', backgroundColor: '#f5f5f5',
@@ -359,7 +385,6 @@ function App() {
 
                         ) : (
 
-                            // --- ВАРІАНТ КОЛИ Є ХОЧА Б 1 ДЕТАЛЬ ---
                             <>
                                 <div style={{
                                     padding: '15px',
@@ -378,8 +403,8 @@ function App() {
                                     </div>
                                 </div>
 
-                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
-                                    <div>
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
+                                    <div style={{marginBottom: '5px'}}>
                                         <span style={{
                                             textDecoration: 'line-through',
                                             color: '#999',
@@ -397,7 +422,24 @@ function App() {
                                     </div>
 
                                     <button
+                                        onClick={handleSaveBuild}
                                         style={{
+                                            width: '100%',
+                                            padding: '15px 40px',
+                                            backgroundColor: '#a5c926',
+                                            color: '#fff',
+                                            border: 'none',
+                                            borderRadius: '30px',
+                                            fontSize: '16px',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer'
+                                        }}>
+                                        Зберегти збірку
+                                    </button>
+
+                                    <button
+                                        style={{
+                                            width: '100%',
                                             padding: '15px 40px',
                                             backgroundColor: '#a5c926',
                                             color: '#fff',
