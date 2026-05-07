@@ -2,7 +2,7 @@
 
 This is a fully-fledged web application for selecting computer components, developed using PHP 8, MySQL, and the MVC pattern.
 
-## 🚀 Core Features (According to the Requirements)
+## 🚀 Core Features
 * **Asynchrony:** The configurator operates on the Fetch API with data exchange in JSON format (without page reloading).
 * **MVC Architecture:** Strict separation of logic (Models), presentation (Views), and control (Controllers).
 * **Output Buffering:** The router uses `ob_start()` and `ob_clean()` to generate pages based on HTTP status codes (200, 404, 500).
