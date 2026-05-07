@@ -61,8 +61,8 @@ The architecture is designed to cover all course topics:
 ## 6. Development Roadmap
 
 - [x] **Phase 1: Infrastructure.** Docker setup, DB initialization (`init.sql`).
-- [ ] **Phase 2: Core.** Creating base MVC classes (Router, Database PDO, Controller, Model). Implementation of output buffering (Lab 7).
-- [ ] **Phase 3: Catalog and Configurator.** Displaying products. Writing a JSON API for data exchange between React/JS and PHP (Lab 6).
-- [ ] **Phase 4: Authorization and Users.** Registration, login, sessions (Lab 3).
-- [ ] **Phase 5: Admin Panel.** CRUD for components and photo uploads. Logic for exiting editing mode.
-- [ ] **Phase 6: Finalization.** "Pages" and "Orders" modules. Testing and report preparation.
+- [x] **Phase 2: Core.** Creating base MVC classes (Router, Database PDO, Controller, Model). Implementation of output buffering (Lab 7).
+- [x] **Phase 3: Catalog and Configurator.** Displaying products. Writing a JSON API for data exchange between React/JS and PHP (Lab 6).
+- [x] **Phase 4: Authorization and Users.** Registration, login, sessions (Lab 3).
+- [ ] **Phase 5: Orders & Builds.** Saving configurations to the database, linking users with their builds, calculating final logic.
+- [ ] **Phase 6: Admin Panel & Finalization.** CRUD for components, photo uploads, routing protection, testing and report preparation.
