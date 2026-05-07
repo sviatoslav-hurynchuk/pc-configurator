@@ -7,6 +7,8 @@ import { useContext } from 'react'; // Додаємо до існуючого і
 import { AuthContext } from './context/AuthContext';
 import { logoutUser, saveBuild  } from './services/api';
 import AuthModal from './components/AuthModal';
+import OrderHistoryModal from "./components/OrderHistoryModal.tsx";
+import BuildOverviewModal from "./components/BuildOverviewModal.tsx";
 
 function App() {
     const [components, setComponents] = useState<PcComponent[]>([]);
@@ -17,6 +19,21 @@ function App() {
 
     const { user, setUser, loading: authLoading } = useContext(AuthContext);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+    const [isOrderHistoryModalOpen, setIsOrderHistoryModalOpen] = useState(false);
+    const [isBuildOverviewModalOpen, setIsBuildOverviewModalOpen] = useState(false);
+
+    useEffect(() => {
+        if (isAuthModalOpen || isOrderHistoryModalOpen || isBuildOverviewModalOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isAuthModalOpen, isOrderHistoryModalOpen, isBuildOverviewModalOpen]);
 
     useEffect(() => {
         const loadData = async () => {
@@ -263,13 +280,20 @@ function App() {
                         user ? (
                             <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
                                 <span>Привіт, <strong>{user.name}</strong>!</span>
+                                <button
+                                    onClick={() => setIsOrderHistoryModalOpen(true)}
+                                    style={{
+                                        padding: '8px 15px', borderRadius: '20px',
+                                        backgroundColor: '#a5c926', color: '#fff', border: 'none',
+                                        fontWeight: 'bold', cursor: 'pointer'
+                                    }}>
+                                    Мої збірки
+                                </button>
                                 <button onClick={handleLogout} style={{
-                                    padding: '8px 15px',
-                                    borderRadius: '20px',
-                                    border: '1px solid #ccc',
-                                    background: '#fff',
-                                    cursor: 'pointer'
-                                }}>Вийти
+                                    padding: '8px 15px', borderRadius: '20px',
+                                    border: '1px solid #ccc', background: '#fff', cursor: 'pointer'
+                                }}>
+                                    Вийти
                                 </button>
                             </div>
                         ) : (
@@ -323,15 +347,17 @@ function App() {
                         fontSize: '14px'
                     }}>
                         <span>Уся ваша збірка: <strong>{totalItems} / {PC_CATEGORIES.length}</strong></span>
-                        <button style={{
-                            padding: '8px 16px',
-                            backgroundColor: '#f5f5f5',
-                            border: 'none',
-                            borderRadius: '20px',
-                            fontWeight: 'bold',
-                            cursor: 'pointer',
-                            fontSize: '13px'
-                        }}>
+                        <button
+                            onClick={() => setIsBuildOverviewModalOpen(true)}
+                            style={{
+                                padding: '8px 16px',
+                                backgroundColor: '#f5f5f5',
+                                border: 'none',
+                                borderRadius: '20px',
+                                fontWeight: 'bold',
+                                cursor: 'pointer',
+                                fontSize: '13px'
+                            }}>
                             Дивитись збірку
                         </button>
                     </div>
@@ -461,6 +487,13 @@ function App() {
                 </div>
             </div>
             <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+            <OrderHistoryModal isOpen={isOrderHistoryModalOpen} onClose={() => setIsOrderHistoryModalOpen(false)} />
+            <BuildOverviewModal
+                isOpen={isBuildOverviewModalOpen}
+                onClose={() => setIsBuildOverviewModalOpen(false)}
+                build={build}
+                totalItems={totalItems}
+            />
         </>
     );
 }

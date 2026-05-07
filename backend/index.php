@@ -40,6 +40,7 @@ $router->add('GET', '/api/components', [$componentController, 'index']);
 
 $orderController = new OrderController();
 $router->add('POST', '/api/orders', [$orderController, 'save']);
+$router->add('GET', '/api/orders', [$orderController, 'getUserHistory']);
 
 $authController = new AuthController();
 $router->add('POST', '/api/register', [$authController, 'register']);

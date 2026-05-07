@@ -36,4 +36,22 @@ class OrderModel extends BaseModel {
             return false;
         }
     }
+    public function getUserOrders(int $userId): array {
+        $stmt = $this->db->prepare("SELECT id, total_price, status, created_at FROM orders WHERE user_id = :user_id ORDER BY created_at DESC");
+        $stmt->execute(['user_id' => $userId]);
+        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($orders as &$order) {
+            $stmtItems = $this->db->prepare("
+                SELECT c.name, c.image_url, oi.price_at_purchase 
+                FROM order_items oi
+                JOIN components c ON oi.component_id = c.id
+                WHERE oi.order_id = :order_id
+            ");
+            $stmtItems->execute(['order_id' => $order['id']]);
+            $order['items'] = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        return $orders;
+    }
 }

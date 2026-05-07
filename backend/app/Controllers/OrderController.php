@@ -32,4 +32,15 @@ class OrderController extends BaseController {
             $this->jsonResponse(['status' => 'error', 'message' => 'Помилка при збереженні збірки'], 500);
         }
     }
+    public function getUserHistory(): void {
+        $this->requireAuth();
+
+        $userId = $_SESSION['user_id'];
+        $orders = $this->orderModel->getUserOrders($userId);
+
+        $this->jsonResponse([
+            'status' => 'success',
+            'orders' => $orders
+        ]);
+    }
 }
