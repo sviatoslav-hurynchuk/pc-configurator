@@ -77,14 +77,41 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             backgroundColor: 'rgba(0, 0, 0, 0.6)', display: 'flex',
             alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }}>
+
             <div style={{
                 backgroundColor: '#fff', padding: '30px 40px', borderRadius: '12px',
-                width: '300px', maxWidth: '90%', position: 'relative', maxHeight: '90vh', overflowY: 'auto'
+                width: '300px', maxWidth: '90%', position: 'relative', maxHeight: '90vh'
             }}>
+                <button
+                    onClick={onClose}
+                    style={{
+                        position: 'absolute',
+                        top: '-20px',
+                        right: '-20px',
+                        width: '40px',
+                        height: '40px',
+                        backgroundColor: '#fff',
+                        border: '1px solid #e3e3e3',
+                        borderRadius: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 0,
+                        margin: 0,
+                        zIndex: 10,
+                        cursor: 'pointer',
+                        color: '#000',
+                        fontSize: '16px',
+                        outline: 'none'
+                    }}
+                >
+                    ✕
+                </button>
                 <div style={{
                     display: 'flex', border: '1px solid #eee', borderRadius: '50px',
                     marginBottom: '25px'
                 }}>
+
                     <button
                         type="button"
                         onClick={() => { setIsLoginView(true); setError(''); }}
