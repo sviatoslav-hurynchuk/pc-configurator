@@ -3,14 +3,11 @@ use PHPUnit\Framework\TestCase;
 use App\Models\UserModel;
 
 class AuthTest extends TestCase {
-    private UserModel $userModel;
-
-    protected function setUp(): void {
-        $this->userModel = new UserModel();
-    }
 
     public function testFindNonExistentUserReturnsNull() {
-        $user = $this->userModel->findByEmail('fake_email@test.com');
+        $userModel = new UserModel();
+        $user = $userModel->findByEmail('fake_email@test.com');
+
         $this->assertNull($user, "Пошук неіснуючого email має повертати null");
     }
 
