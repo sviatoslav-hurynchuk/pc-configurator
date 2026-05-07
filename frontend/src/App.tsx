@@ -229,7 +229,7 @@ function App() {
                 borderBottom: '1px solid #eee',
                 marginBottom: '20px'
             }}>
-                <div style={{fontSize: '24px', fontWeight: 'bold', color: '#333'}}>TELEMART.CLONE</div>
+                <div style={{fontSize: '24px', fontWeight: 'bold', color: '#333'}}>PC CONFIGURATOR</div>
 
                 <div>
                     {!authLoading && (
@@ -274,7 +274,6 @@ function App() {
             }}>
 
                 <div style={{flex: '7'}}>
-                    <h1 style={{fontSize: '24px', marginBottom: '30px'}}>Конфігуратор комп'ютера</h1>
 
                     {renderCategoryGroup('Базові', basicCategories)}
                     {renderCategoryGroup('Обов\'язкові', mandatoryCategories)}
