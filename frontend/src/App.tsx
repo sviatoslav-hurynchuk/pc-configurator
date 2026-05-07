@@ -3,6 +3,10 @@ import {fetchComponents} from './services/api';
 import type {PcComponent} from './types';
 import {PC_CATEGORIES} from './constants.tsx';
 import {BsEmojiFrown} from "react-icons/bs";
+import { useContext } from 'react'; // Додаємо до існуючого імпорту useState, useEffect
+import { AuthContext } from './context/AuthContext';
+import { logoutUser } from './services/api';
+import AuthModal from './components/AuthModal';
 
 function App() {
     const [components, setComponents] = useState<PcComponent[]>([]);
@@ -10,6 +14,9 @@ function App() {
 
     const [build, setBuild] = useState<Record<number, PcComponent>>({});
     const [activeCategory, setActiveCategory] = useState<number | null>(null);
+
+    const { user, setUser, loading: authLoading } = useContext(AuthContext);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
     useEffect(() => {
         const loadData = async () => {
@@ -21,6 +28,10 @@ function App() {
             .catch(console.error);
     }, []);
 
+    const handleLogout = async () => {
+        await logoutUser();
+        setUser(null);
+    };
     const addToBuild = (item: PcComponent) => {
         setBuild(prevBuild => ({
             ...prevBuild,
@@ -208,161 +219,207 @@ function App() {
     );
 
     return (
-        <div style={{
-            padding: '20px',
-            fontFamily: 'Arial, sans-serif',
-            maxWidth: '1400px',
-            margin: '0 auto',
-            display: 'flex',
-            gap: '30px',
-            alignItems: 'flex-start'
-        }}>
-
-            <div style={{flex: '7'}}>
-                <h1 style={{fontSize: '24px', marginBottom: '30px'}}>Конфігуратор комп'ютера</h1>
-
-                {renderCategoryGroup('Базові', basicCategories)}
-                {renderCategoryGroup('Обов\'язкові', mandatoryCategories)}
-            </div>
-
+        <>
             <div style={{
-                flex: '3',
-                padding: '25px',
-                height: 'fit-content',
-                position: 'sticky',
-                top: '20px',
-                backgroundColor: '#fff'
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '15px 40px',
+                backgroundColor: '#fff',
+                borderBottom: '1px solid #eee',
+                marginBottom: '20px'
+            }}>
+                <div style={{fontSize: '24px', fontWeight: 'bold', color: '#333'}}>PC CONFIGURATOR</div>
+
+                <div>
+                    {!authLoading && (
+                        user ? (
+                            <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
+                                <span>Привіт, <strong>{user.name}</strong>!</span>
+                                <button onClick={handleLogout} style={{
+                                    padding: '8px 15px',
+                                    borderRadius: '20px',
+                                    border: '1px solid #ccc',
+                                    background: '#fff',
+                                    cursor: 'pointer'
+                                }}>Вийти
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => setIsAuthModalOpen(true)}
+                                style={{
+                                    padding: '10px 25px',
+                                    backgroundColor: '#f5f5f5',
+                                    border: 'none',
+                                    borderRadius: '20px',
+                                    fontWeight: 'bold',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Увійти / Реєстрація
+                            </button>
+                        )
+                    )}
+                </div>
+            </div>
+            <div style={{
+                padding: '20px',
+                fontFamily: 'Arial, sans-serif',
+                maxWidth: '1400px',
+                margin: '0 auto',
+                display: 'flex',
+                gap: '30px',
+                alignItems: 'flex-start'
             }}>
 
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '15px',
-                    fontSize: '14px'
-                }}>
-                    <span>Уся ваша збірка: <strong>{totalItems} / {PC_CATEGORIES.length}</strong></span>
-                    <button style={{
-                        padding: '8px 16px',
-                        backgroundColor: '#f5f5f5',
-                        border: 'none',
-                        borderRadius: '20px',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        fontSize: '13px'
-                    }}>
-                        Дивитись збірку
-                    </button>
-                </div>
+                <div style={{flex: '7'}}>
 
-                <div style={{
-                    width: '100%',
-                    height: '6px',
-                    backgroundColor: '#eee',
-                    borderRadius: '3px',
-                    marginBottom: '20px'
-                }}>
-
-                    <div style={{
-                        width: `${(totalItems / PC_CATEGORIES.length) * 100}%`,
-                        height: '100%',
-                        backgroundColor: '#a5c926',
-                        borderRadius: '3px',
-                        transition: 'width 0.3s ease'
-                    }}></div>
-
+                    {renderCategoryGroup('Базові', basicCategories)}
+                    {renderCategoryGroup('Обов\'язкові', mandatoryCategories)}
                 </div>
 
                 <div style={{
                     flex: '3',
-                    border: '1px solid #e0e0e0',
                     padding: '25px',
-                    borderRadius: '8px',
                     height: 'fit-content',
                     position: 'sticky',
                     top: '20px',
                     backgroundColor: '#fff'
                 }}>
 
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '15px',
+                        fontSize: '14px'
+                    }}>
+                        <span>Уся ваша збірка: <strong>{totalItems} / {PC_CATEGORIES.length}</strong></span>
+                        <button style={{
+                            padding: '8px 16px',
+                            backgroundColor: '#f5f5f5',
+                            border: 'none',
+                            borderRadius: '20px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            fontSize: '13px'
+                        }}>
+                            Дивитись збірку
+                        </button>
+                    </div>
 
-                    {totalItems === 0 ? (
+                    <div style={{
+                        width: '100%',
+                        height: '6px',
+                        backgroundColor: '#eee',
+                        borderRadius: '3px',
+                        marginBottom: '20px'
+                    }}>
 
-                        // --- ВАРІАНТ КОЛИ НІЧОГО НЕ ОБРАНО ---
-                        <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
-                            <div style={{
-                                width: '45px', height: '45px', backgroundColor: '#f5f5f5',
-                                borderRadius: '50%', display: 'flex', alignItems: 'center',
-                                justifyContent: 'center', color: '#888'
-                            }}>
-                                <BsEmojiFrown size={24}/>
-                            </div>
-                            <div>
-                                <div style={{color: '#888', fontSize: '14px', marginBottom: '4px'}}>Нічого не обрано
-                                </div>
-                                <div style={{fontWeight: 'bold', fontSize: '18px'}}>Почніть збирати свій ПК</div>
-                            </div>
-                        </div>
+                        <div style={{
+                            width: `${(totalItems / PC_CATEGORIES.length) * 100}%`,
+                            height: '100%',
+                            backgroundColor: '#a5c926',
+                            borderRadius: '3px',
+                            transition: 'width 0.3s ease'
+                        }}></div>
 
-                    ) : (
+                    </div>
 
-                        // --- ВАРІАНТ КОЛИ Є ХОЧА Б 1 ДЕТАЛЬ ---
-                        <>
-                            <div style={{
-                                padding: '15px',
-                                border: '1px solid #e0e0e0',
-                                borderRadius: '8px',
-                                marginBottom: '20px'
-                            }}>
-                                <div style={{color: '#a5c926', fontWeight: 'bold', marginBottom: '10px'}}>✓ Комплектуючі
-                                    сумісні
-                                </div>
+                    <div style={{
+                        flex: '3',
+                        border: '1px solid #e0e0e0',
+                        padding: '25px',
+                        borderRadius: '8px',
+                        height: 'fit-content',
+                        position: 'sticky',
+                        top: '20px',
+                        backgroundColor: '#fff'
+                    }}>
+
+
+                        {totalItems === 0 ? (
+
+                            // --- ВАРІАНТ КОЛИ НІЧОГО НЕ ОБРАНО ---
+                            <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
                                 <div style={{
-                                    color: '#e74c3c',
-                                    fontSize: '14px'
-                                }}>↓ {PC_CATEGORIES.length - totalItems} елементів не вистачає до повної збірки
+                                    width: '45px', height: '45px', backgroundColor: '#f5f5f5',
+                                    borderRadius: '50%', display: 'flex', alignItems: 'center',
+                                    justifyContent: 'center', color: '#888'
+                                }}>
+                                    <BsEmojiFrown size={24}/>
                                 </div>
-                            </div>
-
-                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
                                 <div>
-                                    <span style={{
-                                        textDecoration: 'line-through',
-                                        color: '#999',
-                                        fontSize: '14px',
-                                        display: 'block',
-                                        marginBottom: '4px'
-                                    }}>
-                                        {(totalPrice * 1.05).toFixed(0)} ₴
-                                    </span>
-                                    <h2 style={{
-                                        color: '#f1580c',
-                                        margin: 0,
-                                        fontSize: '28px'
-                                    }}>{totalPrice.toFixed(0)} ₴</h2>
+                                    <div style={{color: '#888', fontSize: '14px', marginBottom: '4px'}}>Нічого не обрано
+                                    </div>
+                                    <div style={{fontWeight: 'bold', fontSize: '18px'}}>Почніть збирати свій ПК</div>
+                                </div>
+                            </div>
+
+                        ) : (
+
+                            // --- ВАРІАНТ КОЛИ Є ХОЧА Б 1 ДЕТАЛЬ ---
+                            <>
+                                <div style={{
+                                    padding: '15px',
+                                    border: '1px solid #e0e0e0',
+                                    borderRadius: '8px',
+                                    marginBottom: '20px'
+                                }}>
+                                    <div style={{color: '#a5c926', fontWeight: 'bold', marginBottom: '10px'}}>✓
+                                        Комплектуючі
+                                        сумісні
+                                    </div>
+                                    <div style={{
+                                        color: '#e74c3c',
+                                        fontSize: '14px'
+                                    }}>↓ {PC_CATEGORIES.length - totalItems} елементів не вистачає до повної збірки
+                                    </div>
                                 </div>
 
-                                <button
-                                    style={{
-                                        padding: '15px 40px',
-                                        backgroundColor: '#a5c926',
-                                        color: '#fff',
-                                        border: 'none',
-                                        borderRadius: '30px',
-                                        fontSize: '16px',
-                                        fontWeight: 'bold',
-                                        cursor: 'pointer'
-                                    }}>
-                                    Купити
-                                </button>
-                            </div>
-                        </>
+                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
+                                    <div>
+                                        <span style={{
+                                            textDecoration: 'line-through',
+                                            color: '#999',
+                                            fontSize: '14px',
+                                            display: 'block',
+                                            marginBottom: '4px'
+                                        }}>
+                                            {(totalPrice * 1.05).toFixed(0)} ₴
+                                        </span>
+                                        <h2 style={{
+                                            color: '#f1580c',
+                                            margin: 0,
+                                            fontSize: '28px'
+                                        }}>{totalPrice.toFixed(0)} ₴</h2>
+                                    </div>
 
-                    )}
+                                    <button
+                                        style={{
+                                            padding: '15px 40px',
+                                            backgroundColor: '#a5c926',
+                                            color: '#fff',
+                                            border: 'none',
+                                            borderRadius: '30px',
+                                            fontSize: '16px',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer'
+                                        }}>
+                                        Купити
+                                    </button>
+                                </div>
+                            </>
+
+                        )}
+
+                    </div>
 
                 </div>
-
             </div>
-        </div>
+            <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+        </>
     );
 }
 

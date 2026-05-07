@@ -1,9 +1,11 @@
 <?php
-header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Origin: http://localhost:5173');
+header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
     exit(0);
 }
 
@@ -23,8 +25,8 @@ spl_autoload_register(function ($class) {
 });
 
 use App\Controllers\ComponentController;
+use App\Controllers\AuthController;
 use App\Core\Router;
-use App\Core\Database;
 
 $router = new Router();
 
@@ -35,4 +37,11 @@ $router = new Router();
 $componentController = new ComponentController();
 $router->add('GET', '/api/components', [$componentController, 'index']);
 
-$router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+$authController = new AuthController();
+$router->add('POST', '/api/register', [$authController, 'register']);
+$router->add('POST', '/api/login', [$authController, 'login']);
+$router->add('POST', '/api/logout', [$authController, 'logout']);
+$router->add('GET', '/api/me', [$authController, 'me']);
+
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$router->dispatch($_SERVER['REQUEST_METHOD'], $uri);

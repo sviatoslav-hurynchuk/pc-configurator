@@ -1,24 +1,21 @@
 <?php
 use PHPUnit\Framework\TestCase;
-
-// Fake Auth class for testing purposes
-class Auth {
-    public static function getCurrentUser() {
-        return ['id' => 1, 'role' => 'admin'];
-    }
-    public static function isAdmin() {
-        return self::getCurrentUser()['role'] === 'admin';
-    }
-}
+use App\Models\UserModel;
 
 class AuthTest extends TestCase {
-    public function testAdminRoleIsTrue() {
-        $this->assertTrue(Auth::isAdmin(), "User with ID 1 should be an admin");
+
+    public function testFindNonExistentUserReturnsNull() {
+        $userModel = new UserModel();
+        $user = $userModel->findByEmail('fake_email@test.com');
+
+        $this->assertNull($user, "Пошук неіснуючого email має повертати null");
     }
 
-    public function testCurrentUserHasId() {
-        $user = Auth::getCurrentUser();
-        $this->assertArrayHasKey('id', $user);
-        $this->assertEquals(1, $user['id']);
+    public function testPasswordHashingRules() {
+        $rawPassword = 'mySecretPassword123';
+        $hash = password_hash($rawPassword, PASSWORD_DEFAULT);
+
+        $this->assertNotEquals($rawPassword, $hash, "Хеш не повинен дорівнювати паролю");
+        $this->assertTrue(password_verify($rawPassword, $hash), "Функція verify має успішно валідувати правильний пароль");
     }
 }
