@@ -37,6 +37,24 @@ CREATE TABLE IF NOT EXISTS components
             ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS orders (
+                                      id INT AUTO_INCREMENT PRIMARY KEY,
+                                      user_id INT NOT NULL,
+                                      total_price DECIMAL(10, 2) NOT NULL,
+                                      status VARCHAR(50) DEFAULT 'saved',
+                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+                                           id INT AUTO_INCREMENT PRIMARY KEY,
+                                           order_id INT NOT NULL,
+                                           component_id INT NOT NULL,
+                                           price_at_purchase DECIMAL(10, 2) NOT NULL,
+                                           FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+                                           FOREIGN KEY (component_id) REFERENCES components(id) ON DELETE CASCADE
+);
+
 -- Seed Categories
 INSERT INTO categories (id, name, slug) VALUES
                                             (1, 'Processor', 'cpu'),

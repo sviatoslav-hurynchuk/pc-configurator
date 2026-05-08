@@ -50,3 +50,11 @@ export const fetchComponents = async (): Promise<PcComponent[]> => {
         return [];
     }
 };
+export const fetchUserOrders = async () => {
+    const response = await fetch(`${API_BASE_URL}/api/orders`, fetchOptions('GET'));
+    return response.json();
+};
+export const saveBuild = async (data: { componentIds: number[], totalPrice: number, status: string}) => {
+    const response = await fetch(`${API_BASE_URL}/api/orders`, fetchOptions('POST', data));
+    return response.json();
+};

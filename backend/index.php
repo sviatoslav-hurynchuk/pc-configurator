@@ -27,6 +27,7 @@ spl_autoload_register(function ($class) {
 use App\Controllers\ComponentController;
 use App\Controllers\AuthController;
 use App\Core\Router;
+use App\Controllers\OrderController;
 
 $router = new Router();
 
@@ -36,6 +37,10 @@ $router = new Router();
 
 $componentController = new ComponentController();
 $router->add('GET', '/api/components', [$componentController, 'index']);
+
+$orderController = new OrderController();
+$router->add('POST', '/api/orders', [$orderController, 'save']);
+$router->add('GET', '/api/orders', [$orderController, 'getUserHistory']);
 
 $authController = new AuthController();
 $router->add('POST', '/api/register', [$authController, 'register']);

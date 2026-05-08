@@ -3,10 +3,12 @@ import {fetchComponents} from './services/api';
 import type {PcComponent} from './types';
 import {PC_CATEGORIES} from './constants.tsx';
 import {BsEmojiFrown} from "react-icons/bs";
-import { useContext } from 'react'; // Додаємо до існуючого імпорту useState, useEffect
+import { useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
-import { logoutUser } from './services/api';
+import { logoutUser, saveBuild  } from './services/api';
 import AuthModal from './components/AuthModal';
+import OrderHistoryModal from "./components/OrderHistoryModal.tsx";
+import BuildOverviewModal from "./components/BuildOverviewModal.tsx";
 
 function App() {
     const [components, setComponents] = useState<PcComponent[]>([]);
@@ -17,6 +19,21 @@ function App() {
 
     const { user, setUser, loading: authLoading } = useContext(AuthContext);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+    const [isOrderHistoryModalOpen, setIsOrderHistoryModalOpen] = useState(false);
+    const [isBuildOverviewModalOpen, setIsBuildOverviewModalOpen] = useState(false);
+
+    useEffect(() => {
+        if (isAuthModalOpen || isOrderHistoryModalOpen || isBuildOverviewModalOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isAuthModalOpen, isOrderHistoryModalOpen, isBuildOverviewModalOpen]);
 
     useEffect(() => {
         const loadData = async () => {
@@ -48,6 +65,61 @@ function App() {
         });
     };
 
+    const handleSaveBuild = async () => {
+        if (!user) {
+            setIsAuthModalOpen(true);
+            return;
+        }
+
+        const componentIds = Object.values(build)
+            .filter((item: any) => item !== null)
+            .map((item: any) => item.id);
+
+        if (componentIds.length === 0) {
+            alert('Збірка порожня. Додайте хоча б одну деталь.');
+            return;
+        }
+
+        try {
+            const res = await saveBuild({ componentIds, totalPrice, status: 'saved' });
+            if (res.status === 'success') {
+                alert('Збірку успішно збережено!');
+            } else {
+                alert(res.message || 'Помилка збереження');
+            }
+        } catch (err) {
+            alert('Помилка з\'єднання з сервером');
+        }
+    };
+    const handleBuyBuild = async () => {
+        if (!user) {
+            setIsAuthModalOpen(true);
+            return;
+        }
+
+        const componentIds = Object.values(build)
+            .filter((item: any) => item !== null)
+            .map((item: any) => item.id);
+
+        if (componentIds.length === 0) {
+            alert('Збірка порожня. Додайте хоча б одну деталь перед покупкою.');
+            return;
+        }
+
+        try {
+            const res = await saveBuild({ componentIds, totalPrice, status: 'processing' });
+            if (res.status === 'success') {
+                alert('Замовлення успішно оформлено! Переходимо до оплати...');
+                setBuild({});
+                setActiveCategory(null);
+            } else {
+                alert(res.message || 'Помилка оформлення замовлення');
+            }
+        } catch (err) {
+            alert('Помилка з\'єднання з сервером');
+        }
+    };
+
     const totalPrice = Object.values(build).reduce((sum, item) => sum + parseFloat(item.price), 0);
     const totalItems = Object.values(build).length;
 
@@ -55,6 +127,7 @@ function App() {
 
     const basicCategories = PC_CATEGORIES.filter(c => [1, 2, 3, 4].includes(c.id));
     const mandatoryCategories = PC_CATEGORIES.filter(c => [5, 6, 7, 8, 10, 11].includes(c.id));
+    const optionalCategories = PC_CATEGORIES.filter(c => [12, 13, 14].includes(c.id));
 
     const renderCategoryGroup = (title: string, categories: typeof PC_CATEGORIES) => (
         <div style={{marginBottom: '40px'}}>
@@ -69,7 +142,7 @@ function App() {
                     const categoryProducts = components.filter(c => c.category_id === category.id);
 
                     return (
-                        <div key={category.id} style={{
+                        <div key={category.id} id={`category-${category.id}`} style={{
                             border: '1px solid #e0e0e0',
                             borderRadius: '8px',
                             backgroundColor: selectedItem && !isExpanded ? '#f4f9e9' : '#fff',
@@ -236,13 +309,20 @@ function App() {
                         user ? (
                             <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
                                 <span>Привіт, <strong>{user.name}</strong>!</span>
+                                <button
+                                    onClick={() => setIsOrderHistoryModalOpen(true)}
+                                    style={{
+                                        padding: '8px 15px', borderRadius: '20px',
+                                        backgroundColor: '#a5c926', color: '#fff', border: 'none',
+                                        fontWeight: 'bold', cursor: 'pointer'
+                                    }}>
+                                    Мої збірки
+                                </button>
                                 <button onClick={handleLogout} style={{
-                                    padding: '8px 15px',
-                                    borderRadius: '20px',
-                                    border: '1px solid #ccc',
-                                    background: '#fff',
-                                    cursor: 'pointer'
-                                }}>Вийти
+                                    padding: '8px 15px', borderRadius: '20px',
+                                    border: '1px solid #ccc', background: '#fff', cursor: 'pointer'
+                                }}>
+                                    Вийти
                                 </button>
                             </div>
                         ) : (
@@ -277,6 +357,7 @@ function App() {
 
                     {renderCategoryGroup('Базові', basicCategories)}
                     {renderCategoryGroup('Обов\'язкові', mandatoryCategories)}
+                    {renderCategoryGroup('Додаткові', optionalCategories)}
                 </div>
 
                 <div style={{
@@ -296,15 +377,17 @@ function App() {
                         fontSize: '14px'
                     }}>
                         <span>Уся ваша збірка: <strong>{totalItems} / {PC_CATEGORIES.length}</strong></span>
-                        <button style={{
-                            padding: '8px 16px',
-                            backgroundColor: '#f5f5f5',
-                            border: 'none',
-                            borderRadius: '20px',
-                            fontWeight: 'bold',
-                            cursor: 'pointer',
-                            fontSize: '13px'
-                        }}>
+                        <button
+                            onClick={() => setIsBuildOverviewModalOpen(true)}
+                            style={{
+                                padding: '8px 16px',
+                                backgroundColor: '#f5f5f5',
+                                border: 'none',
+                                borderRadius: '20px',
+                                fontWeight: 'bold',
+                                cursor: 'pointer',
+                                fontSize: '13px'
+                            }}>
                             Дивитись збірку
                         </button>
                     </div>
@@ -341,7 +424,6 @@ function App() {
 
                         {totalItems === 0 ? (
 
-                            // --- ВАРІАНТ КОЛИ НІЧОГО НЕ ОБРАНО ---
                             <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
                                 <div style={{
                                     width: '45px', height: '45px', backgroundColor: '#f5f5f5',
@@ -359,7 +441,6 @@ function App() {
 
                         ) : (
 
-                            // --- ВАРІАНТ КОЛИ Є ХОЧА Б 1 ДЕТАЛЬ ---
                             <>
                                 <div style={{
                                     padding: '15px',
@@ -378,8 +459,8 @@ function App() {
                                     </div>
                                 </div>
 
-                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
-                                    <div>
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
+                                    <div style={{marginBottom: '5px'}}>
                                         <span style={{
                                             textDecoration: 'line-through',
                                             color: '#999',
@@ -397,7 +478,25 @@ function App() {
                                     </div>
 
                                     <button
+                                        onClick={handleSaveBuild}
                                         style={{
+                                            width: '100%',
+                                            padding: '15px 40px',
+                                            backgroundColor: '#a5c926',
+                                            color: '#fff',
+                                            border: 'none',
+                                            borderRadius: '30px',
+                                            fontSize: '16px',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer'
+                                        }}>
+                                        Зберегти збірку
+                                    </button>
+
+                                    <button
+                                        onClick={handleBuyBuild}
+                                        style={{
+                                            width: '100%',
                                             padding: '15px 40px',
                                             backgroundColor: '#a5c926',
                                             color: '#fff',
@@ -419,6 +518,24 @@ function App() {
                 </div>
             </div>
             <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+            <OrderHistoryModal isOpen={isOrderHistoryModalOpen} onClose={() => setIsOrderHistoryModalOpen(false)} />
+            <BuildOverviewModal
+                isOpen={isBuildOverviewModalOpen}
+                onClose={() => setIsBuildOverviewModalOpen(false)}
+                build={build}
+                totalItems={totalItems}
+                onSelectCategory={(categoryId) => {
+                    setIsBuildOverviewModalOpen(false);
+                    setActiveCategory(categoryId);
+
+                    setTimeout(() => {
+                        const element = document.getElementById(`category-${categoryId}`);
+                        if (element) {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }, 100);
+                }}
+            />
         </>
     );
 }

@@ -32,7 +32,6 @@ class AuthController extends BaseController {
         $email = trim($input['email'] ?? '');
         $password = $input['password'] ?? '';
 
-        // Базова валідація (Лаб 1-2)
         if (empty($name) || empty($email) || empty($password)) {
             $this->jsonResponse(['status' => 'error', 'message' => 'Всі поля обов\'язкові'], 400);
             return;
