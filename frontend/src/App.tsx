@@ -3,7 +3,7 @@ import {fetchComponents} from './services/api';
 import type {PcComponent} from './types';
 import {PC_CATEGORIES} from './constants.tsx';
 import {BsEmojiFrown} from "react-icons/bs";
-import { useContext } from 'react'; // Додаємо до існуючого імпорту useState, useEffect
+import { useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
 import { logoutUser, saveBuild  } from './services/api';
 import AuthModal from './components/AuthModal';
@@ -99,6 +99,7 @@ function App() {
 
     const basicCategories = PC_CATEGORIES.filter(c => [1, 2, 3, 4].includes(c.id));
     const mandatoryCategories = PC_CATEGORIES.filter(c => [5, 6, 7, 8, 10, 11].includes(c.id));
+    const optionalCategories = PC_CATEGORIES.filter(c => [12, 13, 14].includes(c.id));
 
     const renderCategoryGroup = (title: string, categories: typeof PC_CATEGORIES) => (
         <div style={{marginBottom: '40px'}}>
@@ -113,7 +114,7 @@ function App() {
                     const categoryProducts = components.filter(c => c.category_id === category.id);
 
                     return (
-                        <div key={category.id} style={{
+                        <div key={category.id} id={`category-${category.id}`} style={{
                             border: '1px solid #e0e0e0',
                             borderRadius: '8px',
                             backgroundColor: selectedItem && !isExpanded ? '#f4f9e9' : '#fff',
@@ -328,6 +329,7 @@ function App() {
 
                     {renderCategoryGroup('Базові', basicCategories)}
                     {renderCategoryGroup('Обов\'язкові', mandatoryCategories)}
+                    {renderCategoryGroup('Додаткові', optionalCategories)}
                 </div>
 
                 <div style={{
@@ -493,6 +495,17 @@ function App() {
                 onClose={() => setIsBuildOverviewModalOpen(false)}
                 build={build}
                 totalItems={totalItems}
+                onSelectCategory={(categoryId) => {
+                    setIsBuildOverviewModalOpen(false);
+                    setActiveCategory(categoryId);
+
+                    setTimeout(() => {
+                        const element = document.getElementById(`category-${categoryId}`);
+                        if (element) {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }, 100);
+                }}
             />
         </>
     );

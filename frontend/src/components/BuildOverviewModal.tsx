@@ -6,9 +6,10 @@ interface BuildOverviewModalProps {
     onClose: () => void;
     build: Record<number, PcComponent>;
     totalItems: number;
+    onSelectCategory: (categoryId: number) => void;
 }
 
-export default function BuildOverviewModal({ isOpen, onClose, build, totalItems }: BuildOverviewModalProps) {
+export default function BuildOverviewModal({ isOpen, onClose, build, totalItems, onSelectCategory }: BuildOverviewModalProps) {
     if (!isOpen) return null;
 
     const coreCategoryIds = [1, 2, 3, 4];
@@ -73,10 +74,10 @@ export default function BuildOverviewModal({ isOpen, onClose, build, totalItems 
                                         {item ? (
                                             <>
                                                 <div style={{ fontWeight: 'bold', fontSize: '16px' }}>{parseFloat(item.price).toFixed(0)} ₴</div>
-                                                <button style={{ padding: '6px 12px', border: '1px solid #ddd', borderRadius: '20px', background: '#fff', fontSize: '12px', cursor: 'pointer', marginTop: '5px' }}>Замінити</button>
+                                                <button onClick={() => onSelectCategory(catId)} style={{ padding: '6px 12px', border: '1px solid #ddd', borderRadius: '20px', background: '#fff', fontSize: '12px', cursor: 'pointer', marginTop: '5px' }}>Замінити</button>
                                             </>
                                         ) : (
-                                            <button style={{ padding: '6px 15px', border: '1px solid #ccc', borderRadius: '20px', background: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>Обрати</button>
+                                            <button onClick={() => onSelectCategory(catId)} style={{ padding: '6px 15px', border: '1px solid #ccc', borderRadius: '20px', background: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>Обрати</button>
                                         )}
                                     </div>
                                 </div>
@@ -103,10 +104,10 @@ export default function BuildOverviewModal({ isOpen, onClose, build, totalItems 
                                         {item ? (
                                             <>
                                                 <div style={{ fontWeight: 'bold', fontSize: '15px' }}>{parseFloat(item.price).toFixed(0)} ₴</div>
-                                                <button style={{ padding: '6px 12px', border: '1px solid #ddd', borderRadius: '20px', background: '#fff', fontSize: '12px', cursor: 'pointer' }}>Замінити</button>
+                                                <button onClick={() => onSelectCategory(category.id)} style={{ padding: '6px 12px', border: '1px solid #ddd', borderRadius: '20px', background: '#fff', fontSize: '12px', cursor: 'pointer' }}>Замінити</button>
                                             </>
                                         ) : (
-                                            <button style={{ padding: '6px 15px', border: '1px solid #ccc', borderRadius: '20px', background: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>Обрати</button>
+                                            <button onClick={() => onSelectCategory(category.id)} style={{ padding: '6px 15px', border: '1px solid #ccc', borderRadius: '20px', background: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>Обрати</button>
                                         )}
                                     </div>
                                 </div>
