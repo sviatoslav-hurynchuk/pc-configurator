@@ -67,8 +67,18 @@ export default function OrderHistoryModal({ isOpen, onClose }: OrderHistoryModal
                                             </div>
                                         </div>
                                         <div style={{ textAlign: 'right' }}>
-                                            <div style={{ fontSize: '12px', color: '#a5c926', fontWeight: 'bold' }}>{order.status === 'saved' ? 'Збережено' : order.status}</div>
-                                            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#f1580c', marginTop: '2px' }}>
+                                            <div style={{
+                                                fontSize: '12px',
+                                                fontWeight: 'bold',
+                                                padding: '4px 10px',
+                                                borderRadius: '12px',
+                                                backgroundColor: order.status === 'processing' ? '#fff9e6' : '#f4f9e9',
+                                                color: order.status === 'processing' ? '#f1c40f' : '#a5c926',
+                                                display: 'inline-block'
+                                            }}>
+                                                {order.status === 'processing' ? 'В обробці' : 'Збережено'}
+                                            </div>
+                                            <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#f1580c', marginTop: '5px' }}>
                                                 {parseFloat(order.total_price).toFixed(0)} ₴
                                             </div>
                                         </div>

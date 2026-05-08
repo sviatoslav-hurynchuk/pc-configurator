@@ -6,14 +6,15 @@ use PDO;
 use Exception;
 
 class OrderModel extends BaseModel {
-    public function createOrder(int $userId, float $totalPrice, array $componentIds): bool {
+    public function createOrder(int $userId, float $totalPrice, string $status, array $componentIds): bool {
         try {
             $this->db->beginTransaction();
 
-            $stmt = $this->db->prepare("INSERT INTO orders (user_id, total_price) VALUES (:user_id, :total_price)");
+            $stmt = $this->db->prepare("INSERT INTO orders (user_id, total_price, status) VALUES (:user_id, :total_price, :status)");
             $stmt->execute([
                 'user_id' => $userId,
-                'total_price' => $totalPrice
+                'total_price' => $totalPrice,
+                'status' => $status
             ]);
 
             $orderId = $this->db->lastInsertId();

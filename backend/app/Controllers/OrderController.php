@@ -18,6 +18,7 @@ class OrderController extends BaseController {
 
         $componentIds = $input['componentIds'] ?? [];
         $totalPrice = $input['totalPrice'] ?? 0;
+        $status = $input['status'] ?? 'saved';
 
         if (empty($componentIds)) {
             $this->jsonResponse(['status' => 'error', 'message' => 'Збірка порожня'], 400);
@@ -26,7 +27,7 @@ class OrderController extends BaseController {
 
         $userId = $_SESSION['user_id'];
 
-        if ($this->orderModel->createOrder($userId, $totalPrice, $componentIds)) {
+        if ($this->orderModel->createOrder($userId, $totalPrice, $status, $componentIds)) {
             $this->jsonResponse(['status' => 'success', 'message' => 'Збірку успішно збережено']);
         } else {
             $this->jsonResponse(['status' => 'error', 'message' => 'Помилка при збереженні збірки'], 500);

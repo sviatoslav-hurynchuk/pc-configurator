@@ -81,11 +81,39 @@ function App() {
         }
 
         try {
-            const res = await saveBuild({ componentIds, totalPrice });
+            const res = await saveBuild({ componentIds, totalPrice, status: 'saved' });
             if (res.status === 'success') {
                 alert('Збірку успішно збережено!');
             } else {
                 alert(res.message || 'Помилка збереження');
+            }
+        } catch (err) {
+            alert('Помилка з\'єднання з сервером');
+        }
+    };
+    const handleBuyBuild = async () => {
+        if (!user) {
+            setIsAuthModalOpen(true);
+            return;
+        }
+
+        const componentIds = Object.values(build)
+            .filter((item: any) => item !== null)
+            .map((item: any) => item.id);
+
+        if (componentIds.length === 0) {
+            alert('Збірка порожня. Додайте хоча б одну деталь перед покупкою.');
+            return;
+        }
+
+        try {
+            const res = await saveBuild({ componentIds, totalPrice, status: 'processing' });
+            if (res.status === 'success') {
+                alert('Замовлення успішно оформлено! Переходимо до оплати...');
+                setBuild({});
+                setActiveCategory(null);
+            } else {
+                alert(res.message || 'Помилка оформлення замовлення');
             }
         } catch (err) {
             alert('Помилка з\'єднання з сервером');
@@ -466,6 +494,7 @@ function App() {
                                     </button>
 
                                     <button
+                                        onClick={handleBuyBuild}
                                         style={{
                                             width: '100%',
                                             padding: '15px 40px',
