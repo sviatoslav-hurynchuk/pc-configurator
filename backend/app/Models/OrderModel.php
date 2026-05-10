@@ -55,4 +55,12 @@ class OrderModel extends BaseModel {
 
         return $orders;
     }
+    public function updateOrderStatus(int $orderId, int $userId, string $status): bool {
+        $stmt = $this->db->prepare("UPDATE orders SET status = :status WHERE id = :id AND user_id = :user_id");
+        return $stmt->execute([
+            'status' => $status,
+            'id' => $orderId,
+            'user_id' => $userId
+        ]);
+    }
 }
