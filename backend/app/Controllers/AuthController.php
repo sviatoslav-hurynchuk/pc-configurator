@@ -32,7 +32,6 @@ class AuthController extends BaseController {
         $email = trim($input['email'] ?? '');
         $password = $input['password'] ?? '';
 
-        // Базова валідація (Лаб 1-2)
         if (empty($name) || empty($email) || empty($password)) {
             $this->jsonResponse(['status' => 'error', 'message' => 'Всі поля обов\'язкові'], 400);
             return;
@@ -61,6 +60,7 @@ class AuthController extends BaseController {
         $input = json_decode(file_get_contents('php://input'), true);
         $email = trim($input['email'] ?? '');
         $password = $input['password'] ?? '';
+        $rememberMe = $input['rememberMe'] ?? false;
 
         if (empty($email) || empty($password)) {
             $this->jsonResponse(['status' => 'error', 'message' => 'Введіть email та пароль'], 400);
@@ -71,6 +71,18 @@ class AuthController extends BaseController {
 
         if ($user && password_verify($password, $user['password_hash'])) {
             $this->startUserSession($user);
+
+            if ($rememberMe) {
+                $series = bin2hex(random_bytes(32));
+                $token = bin2hex(random_bytes(32));
+                $expires = date('Y-m-d H:i:s', time() + (86400 * 30));
+
+                $this->userModel->createAuthToken($user['id'], $series, hash('sha256', $token), $expires);
+
+                $cookieValue = $series . '|' . $token;
+                setcookie('remember_token', $cookieValue, time() + (86400 * 30), "/", "", false, true);
+            }
+
             $this->jsonResponse(['status' => 'success', 'message' => 'Успішний вхід', 'user' => $this->getSafeUserData($user)]);
         } else {
             $this->jsonResponse(['status' => 'error', 'message' => 'Невірний email або пароль'], 401);
@@ -78,12 +90,47 @@ class AuthController extends BaseController {
     }
 
     public function logout(): void {
+        if (isset($_COOKIE['remember_token'])) {
+            $parts = explode('|', $_COOKIE['remember_token']);
+            $this->userModel->deleteTokenBySeries($parts[0]);
+            setcookie('remember_token', '', time() - 3600, '/');
+        }
         session_unset();
         session_destroy();
         $this->jsonResponse(['status' => 'success', 'message' => 'Вихід виконано']);
     }
 
     public function me(): void {
+        if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
+            $parts = explode('|', $_COOKIE['remember_token']);
+            if (count($parts) === 2) {
+                $series = $parts[0];
+                $token = $parts[1];
+
+                $storedToken = $this->userModel->getAuthTokenBySeries($series);
+
+                if ($storedToken && strtotime($storedToken['expires_at']) > time()) {
+                    if (hash_equals($storedToken['token_hash'], hash('sha256', $token))) {
+                        $newToken = bin2hex(random_bytes(32));
+                        $newExpires = date('Y-m-d H:i:s', time() + (86400 * 30));
+                        $this->userModel->updateAuthToken($series, hash('sha256', $newToken), $newExpires);
+
+                        setcookie('remember_token', $series . '|' . $newToken, time() + (86400 * 30), "/", "", false, true);
+
+                        $user = $this->userModel->findById($storedToken['user_id']);
+                        if ($user) {
+                            $this->startUserSession($user);
+                        }
+                    } else {
+                        $this->userModel->deleteAllTokensForUser($storedToken['user_id']);
+                        setcookie('remember_token', '', time() - 3600, '/');
+                        $this->jsonResponse(['status' => 'error', 'message' => 'Security alert: dynamic token mismatch!'], 403);
+                        return;
+                    }
+                }
+            }
+        }
+
         if (isset($_SESSION['user_id'])) {
             $this->jsonResponse([
                 'status' => 'success',
