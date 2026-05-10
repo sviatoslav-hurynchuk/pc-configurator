@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react';
 import {fetchComponents} from './services/api';
-import type {PcComponent} from './types';
+import type {ComponentSpecs, PcComponent} from './types';
 import {PC_CATEGORIES} from './constants.tsx';
 import {BsEmojiFrown} from "react-icons/bs";
 import { useContext } from 'react';
@@ -22,6 +22,45 @@ function App() {
 
     const [isOrderHistoryModalOpen, setIsOrderHistoryModalOpen] = useState(false);
     const [isBuildOverviewModalOpen, setIsBuildOverviewModalOpen] = useState(false);
+
+    const getComponentSpec = (component: PcComponent | undefined, key: string): string | null => {
+        if (!component || !component.specs) return null;
+
+        try {
+            const rawSpecs = component.specs as unknown;
+
+            const specsObj: ComponentSpecs = typeof rawSpecs === 'string'
+                ? JSON.parse(rawSpecs)
+                : component.specs;
+
+            return specsObj[key] ? String(specsObj[key]) : null;
+        } catch (e) {
+            return null;
+        }
+    };
+
+    const cpu = build[1];
+    const mobo = build[2];
+    const ram = build[4];
+
+    const cpuSocket = getComponentSpec(cpu, 'socket');
+    const moboSocket = getComponentSpec(mobo, 'socket');
+    const ramType = getComponentSpec(ram, 'type');
+    const moboRamType = getComponentSpec(mobo, 'ram_type');
+
+    const compatibilityErrors: string[] = [];
+
+    if (cpuSocket && moboSocket && cpuSocket !== moboSocket) {
+        compatibilityErrors.push(`Процесор (сокет ${cpuSocket}) не підходить до материнської плати (сокет ${moboSocket}).`);
+    }
+
+    if (moboRamType && ramType && moboRamType !== ramType) {
+        compatibilityErrors.push(`Материнська плата підтримує ${moboRamType}, але обрано пам'ять ${ramType}.`);
+    } else if ((cpuSocket === 'AM5' || moboSocket === 'AM5') && ramType && ramType !== 'DDR5') {
+        compatibilityErrors.push(`Платформа AM5 підтримує лише пам'ять DDR5 (обрано ${ramType}).`);
+    }
+
+    const hasErrors = compatibilityErrors.length > 0;
 
     useEffect(() => {
         if (isAuthModalOpen || isOrderHistoryModalOpen || isBuildOverviewModalOpen) {
@@ -49,6 +88,7 @@ function App() {
         await logoutUser();
         setUser(null);
     };
+
     const addToBuild = (item: PcComponent) => {
         setBuild(prevBuild => ({
             ...prevBuild,
@@ -80,6 +120,11 @@ function App() {
             return;
         }
 
+        if (hasErrors) {
+            alert('Помилка сумісності! Перевірте обрані комплектуючі перед збереженням.');
+            return;
+        }
+
         try {
             const res = await saveBuild({ componentIds, totalPrice, status: 'saved' });
             if (res.status === 'success') {
@@ -91,6 +136,7 @@ function App() {
             alert('Помилка з\'єднання з сервером');
         }
     };
+
     const handleBuyBuild = async () => {
         if (!user) {
             setIsAuthModalOpen(true);
@@ -103,6 +149,11 @@ function App() {
 
         if (componentIds.length === 0) {
             alert('Збірка порожня. Додайте хоча б одну деталь перед покупкою.');
+            return;
+        }
+
+        if (hasErrors) {
+            alert('Помилка сумісності! Перевірте обрані комплектуючі перед покупкою.');
             return;
         }
 
@@ -171,15 +222,15 @@ function App() {
                                     <div style={{display: 'flex', alignItems: 'center', gap: '20px'}}>
                                         <span style={{fontSize: '14px'}}>{selectedItem.name}</span>
                                         <div style={{textAlign: 'right', whiteSpace: 'nowrap'}}>
-    <span style={{
-        textDecoration: 'line-through',
-        color: '#999',
-        fontSize: '12px',
-        display: 'block',
-        marginBottom: '2px'
-    }}>
-        {(parseFloat(selectedItem.price) * 1.05).toFixed(0)} ₴
-    </span>
+                                            <span style={{
+                                                textDecoration: 'line-through',
+                                                color: '#999',
+                                                fontSize: '12px',
+                                                display: 'block',
+                                                marginBottom: '2px'
+                                            }}>
+                                                {(parseFloat(selectedItem.price) * 1.05).toFixed(0)} ₴
+                                            </span>
                                             <strong style={{fontSize: '16px', color: '#f1580c'}}>
                                                 {parseFloat(selectedItem.price).toFixed(0)} ₴
                                             </strong>
@@ -199,7 +250,7 @@ function App() {
                                                 alignItems: 'center',
                                                 gap: '5px'
                                             }}>
-                                            <span></span> Замінити
+                                            Замінити
                                         </button>
                                         <button
                                             onClick={(e) => {
@@ -244,17 +295,16 @@ function App() {
                                                         fontSize: '14px'
                                                     }}>{product.name}</div>
                                                 </td>
-                                                {/*<td style={{textAlign: 'center', color: '#f39c12'}}>★ 4.8</td>*/}
                                                 <td style={{textAlign: 'right'}}>
-                                                <span style={{
-                                                    textDecoration: 'line-through',
-                                                    color: '#999',
-                                                    fontSize: '12px',
-                                                    display: 'block',
-                                                    marginBottom: '2px'
-                                                }}>
-                                                {(parseFloat(product.price) * 1.05).toFixed(0)} ₴
-                                                </span>
+                                                    <span style={{
+                                                        textDecoration: 'line-through',
+                                                        color: '#999',
+                                                        fontSize: '12px',
+                                                        display: 'block',
+                                                        marginBottom: '2px'
+                                                    }}>
+                                                        {(parseFloat(product.price) * 1.05).toFixed(0)} ₴
+                                                    </span>
                                                     <strong style={{
                                                         fontWeight: 'bold',
                                                         fontSize: '16px',
@@ -354,7 +404,6 @@ function App() {
             }}>
 
                 <div style={{flex: '7'}}>
-
                     {renderCategoryGroup('Базові', basicCategories)}
                     {renderCategoryGroup('Обов\'язкові', mandatoryCategories)}
                     {renderCategoryGroup('Додаткові', optionalCategories)}
@@ -421,9 +470,7 @@ function App() {
                         backgroundColor: '#fff'
                     }}>
 
-
                         {totalItems === 0 ? (
-
                             <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
                                 <div style={{
                                     width: '45px', height: '45px', backgroundColor: '#f5f5f5',
@@ -433,31 +480,41 @@ function App() {
                                     <BsEmojiFrown size={24}/>
                                 </div>
                                 <div>
-                                    <div style={{color: '#888', fontSize: '14px', marginBottom: '4px'}}>Нічого не обрано
-                                    </div>
+                                    <div style={{color: '#888', fontSize: '14px', marginBottom: '4px'}}>Нічого не обрано</div>
                                     <div style={{fontWeight: 'bold', fontSize: '18px'}}>Почніть збирати свій ПК</div>
                                 </div>
                             </div>
-
                         ) : (
-
                             <>
-                                <div style={{
-                                    padding: '15px',
-                                    border: '1px solid #e0e0e0',
-                                    borderRadius: '8px',
-                                    marginBottom: '20px'
-                                }}>
-                                    <div style={{color: '#a5c926', fontWeight: 'bold', marginBottom: '10px'}}>✓
-                                        Комплектуючі
-                                        сумісні
-                                    </div>
+                                {hasErrors ? (
                                     <div style={{
-                                        color: '#e74c3c',
-                                        fontSize: '14px'
-                                    }}>↓ {PC_CATEGORIES.length - totalItems} елементів не вистачає до повної збірки
+                                        padding: '15px', border: '1px solid #e74c3c',
+                                        borderRadius: '8px', marginBottom: '20px', backgroundColor: '#fdf0ed'
+                                    }}>
+                                        <div style={{ color: '#e74c3c', fontWeight: 'bold', marginBottom: '10px' }}>
+                                            Помилка сумісності!
+                                        </div>
+                                        <div style={{ color: '#c0392b', fontSize: '14px', lineHeight: '1.4' }}>
+                                            {compatibilityErrors.map((err, index) => (
+                                                <div key={index} style={{ marginBottom: '4px' }}>• {err}</div>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                ) : (
+                                    <div style={{
+                                        padding: '15px', border: '1px solid #e0e0e0',
+                                        borderRadius: '8px', marginBottom: '20px'
+                                    }}>
+                                        <div style={{ color: '#a5c926', fontWeight: 'bold', marginBottom: '10px' }}>
+                                            Комплектуючі сумісні
+                                        </div>
+                                        <div style={{ color: '#e74c3c', fontSize: '14px' }}>
+                                            {PC_CATEGORIES.length - totalItems > 0
+                                                ? `↓ ${PC_CATEGORIES.length - totalItems} елементів не вистачає до повної збірки`
+                                                : `✓ Усі необхідні елементи зібрано!`}
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
                                     <div style={{marginBottom: '5px'}}>
@@ -479,42 +536,33 @@ function App() {
 
                                     <button
                                         onClick={handleSaveBuild}
+                                        disabled={hasErrors}
                                         style={{
-                                            width: '100%',
-                                            padding: '15px 40px',
-                                            backgroundColor: '#a5c926',
-                                            color: '#fff',
-                                            border: 'none',
-                                            borderRadius: '30px',
-                                            fontSize: '16px',
-                                            fontWeight: 'bold',
-                                            cursor: 'pointer'
+                                            width: '100%', padding: '15px 40px',
+                                            backgroundColor: hasErrors ? '#ccc' : '#a5c926',
+                                            color: '#fff', border: 'none', borderRadius: '30px',
+                                            fontSize: '16px', fontWeight: 'bold',
+                                            cursor: hasErrors ? 'not-allowed' : 'pointer'
                                         }}>
                                         Зберегти збірку
                                     </button>
 
                                     <button
                                         onClick={handleBuyBuild}
+                                        disabled={hasErrors}
                                         style={{
-                                            width: '100%',
-                                            padding: '15px 40px',
-                                            backgroundColor: '#a5c926',
-                                            color: '#fff',
-                                            border: 'none',
-                                            borderRadius: '30px',
-                                            fontSize: '16px',
-                                            fontWeight: 'bold',
-                                            cursor: 'pointer'
+                                            width: '100%', padding: '15px 40px',
+                                            backgroundColor: hasErrors ? '#ccc' : '#a5c926',
+                                            color: '#fff', border: 'none', borderRadius: '30px',
+                                            fontSize: '16px', fontWeight: 'bold',
+                                            cursor: hasErrors ? 'not-allowed' : 'pointer'
                                         }}>
                                         Купити
                                     </button>
                                 </div>
                             </>
-
                         )}
-
                     </div>
-
                 </div>
             </div>
             <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />

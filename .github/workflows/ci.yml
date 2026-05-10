@@ -1,4 +1,4 @@
-name: Minimal CI Pipeline
+name: CI Pipeline
 
 # Run tests on every push to the main branch and on pull requests
 on:
