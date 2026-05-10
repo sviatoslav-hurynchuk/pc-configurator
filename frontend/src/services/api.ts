@@ -43,7 +43,6 @@ export const checkAuth = async () => {
 export const fetchComponents = async (): Promise<PcComponent[]> => {
     try {
         const response = await axios.get(`${API_BASE_URL}/api/components`);
-        console.log("Повна відповідь від PHP (response.data):", response.data);
         return response.data.data;
     } catch (error) {
         console.error("Fetch error:", error);

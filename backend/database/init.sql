@@ -1,4 +1,5 @@
 -- Schema setup
+
 CREATE TABLE IF NOT EXISTS users (
                                      id INT AUTO_INCREMENT PRIMARY KEY,
                                      name VARCHAR(100) NOT NULL,
@@ -6,6 +7,16 @@ CREATE TABLE IF NOT EXISTS users (
                                      password_hash VARCHAR(255) NOT NULL,
                                      role VARCHAR(20) DEFAULT 'user',
                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE auth_tokens (
+                             id INT AUTO_INCREMENT PRIMARY KEY,
+                             user_id INT NOT NULL,
+                             series CHAR(64) NOT NULL,
+                             token_hash CHAR(64) NOT NULL,
+                             expires_at DATETIME NOT NULL,
+                             UNIQUE KEY (series),
+                             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- pass admin123
