@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchUserOrders } from '../services/api';
+import {fetchUserOrders, updateOrderStatus} from '../services/api';
 
 interface OrderHistoryModalProps {
     isOpen: boolean;
@@ -24,7 +24,22 @@ export default function OrderHistoryModal({ isOpen, onClose }: OrderHistoryModal
     }, [isOpen]);
 
     if (!isOpen) return null;
-
+    const handleCheckoutSaved = async (orderId: number) => {
+        try {
+            const res = await updateOrderStatus(orderId, 'processing');
+            if (res.status === 'success') {
+                alert('Замовлення успішно оформлено!');
+                const updatedOrders = await fetchUserOrders();
+                if (updatedOrders.status === 'success') {
+                    setOrders(updatedOrders.orders);
+                }
+            } else {
+                alert(res.message || 'Помилка');
+            }
+        } catch (err) {
+            alert('Помилка з\'єднання з сервером');
+        }
+    };
     return (
         <div style={{
             position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
@@ -81,6 +96,19 @@ export default function OrderHistoryModal({ isOpen, onClose }: OrderHistoryModal
                                             <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#f1580c', marginTop: '5px' }}>
                                                 {parseFloat(order.total_price).toFixed(0)} ₴
                                             </div>
+
+                                            {order.status === 'saved' && (
+                                                <button
+                                                    onClick={() => handleCheckoutSaved(order.id)}
+                                                    style={{
+                                                        marginTop: '10px', padding: '6px 15px', backgroundColor: '#a5c926',
+                                                        color: 'white', border: 'none', borderRadius: '20px',
+                                                        fontWeight: 'bold', cursor: 'pointer', fontSize: '13px'
+                                                    }}
+                                                >
+                                                    Купити зараз
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
 
