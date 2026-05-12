@@ -17,8 +17,8 @@ The Online PC Configurator is a web application that allows users to build compa
 According to the requirements, the system consists of 5 independent functional modules:
 
 1. **"Product Catalog" Module (Catalog):** Display of components (CPU, GPU, RAM, etc.) with filtering and pagination.
-2. **"Configurator" Module (Builder):** The core of the system. Asynchronous (without page reload) addition of parts to the build, calculation of total cost and power consumption (W).
-3. **"Users" Module (Users):** Registration, authorization (based on **Session** and **Cookie**), personal dashboard.
+2. **"Configurator" Module (Builder):** The core of the system. Asynchronous (without page reload) addition of parts to the build, calculation of total cost, power consumption (W), and hardware compatibility validation (CPU Sockets, RAM types).
+3. **"Users" Module (Users):** Registration, authorization (based on Session and Cookie, including Persistent Login with Token Rotation algorithm for enhanced security), personal dashboard.
 4. **"Orders" Module (Orders):** Saving completed builds to the database, user order history.
 5. **"Pages / News" Module (Pages/News):** Dynamic informational pages (e.g., "About Us", "PC World News", "Contacts") managed from the admin panel.
 
@@ -55,7 +55,7 @@ The architecture is designed to cover all course topics:
 4. `orders` (id, user_id, total_price, status, created_at)
 5. `order_items` (id, order_id, component_id, price_at_purchase)
 6. `pages` (id, title, content, slug, is_published)
-
+7. `auth_tokens` (id, user_id, series, token_hash, expires_at)
 ---
 
 ## 6. Development Roadmap
@@ -64,5 +64,5 @@ The architecture is designed to cover all course topics:
 - [x] **Phase 2: Core.** Creating base MVC classes (Router, Database PDO, Controller, Model). Implementation of output buffering (Lab 7).
 - [x] **Phase 3: Catalog and Configurator.** Displaying products. Writing a JSON API for data exchange between React/JS and PHP (Lab 6).
 - [x] **Phase 4: Authorization and Users.** Registration, login, sessions (Lab 3).
-- [ ] **Phase 5: Orders & Builds.** Saving configurations to the database, linking users with their builds, calculating final logic.
+- [x] **Phase 5: Orders & Builds.** Saving configurations to the database, linking users with their builds, calculating final logic.
 - [ ] **Phase 6: Admin Panel & Finalization.** CRUD for components, photo uploads, routing protection, testing and report preparation.
