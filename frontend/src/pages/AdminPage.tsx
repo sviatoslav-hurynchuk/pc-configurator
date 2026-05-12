@@ -1,5 +1,5 @@
 import {type CSSProperties, type ReactNode, useEffect, useState} from 'react';
-import {fetchComponents, fetchOrders} from '../services/api';
+import {fetchComponents, fetchOrders, deleteComponent} from '../services/api';
 import type {PcComponent} from '../types';
 import {PC_CATEGORIES} from '../constants';
 import AddComponentModal from '../components/AddComponentModal';
@@ -21,11 +21,27 @@ export default function AdminPage() {
     const [loading, setLoading] = useState<boolean>(true);
     const [activeTab, setActiveTab] = useState<'dashboard' | 'components' | 'orders'>('dashboard');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [editingComponent, setEditingComponent] = useState<PcComponent | null>(null);
+
     const handleComponentAdded = async () => {
         setIsAddModalOpen(false);
+        setEditingComponent(null);
         setLoading(true);
         const updatedComponents = await fetchComponents();
         setComponents(updatedComponents);
+        setLoading(false);
+    };
+
+    const handleDelete = async (id: number) => {
+        if (!confirm('Ви впевнені, що хочете видалити цю деталь?')) return;
+        setLoading(true);
+        const res = await deleteComponent(id);
+        if (res.status === 'success') {
+            const updatedComponents = await fetchComponents();
+            setComponents(updatedComponents);
+        } else {
+            alert(res.message || 'Помилка видалення');
+        }
         setLoading(false);
     };
     useEffect(() => {
@@ -92,7 +108,7 @@ export default function AdminPage() {
     };
 
     return (
-        <div style={{display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'Arial, sans-serif'}}>
+        <div style={{display: 'flex', height: '100vh', overflow: 'hidden', backgroundColor: '#f8fafc', fontFamily: 'Arial, sans-serif'}}>
 
             <div style={{
                 width: '280px',
@@ -145,7 +161,7 @@ export default function AdminPage() {
                 </div>
             </div>
 
-            <div style={{flex: 1, padding: '40px 60px'}}>
+            <div style={{flex: 1, padding: '40px 60px', overflowY: 'auto'}}>
 
                 {activeTab === 'dashboard' && (
                     <>
@@ -218,7 +234,7 @@ export default function AdminPage() {
                             marginBottom: '30px'
                         }}>
                             <h1 style={pageTitleStyle}>Управління комплектуючими</h1>
-                            <button onClick={() => setIsAddModalOpen(true)}
+                            <button onClick={() => { setEditingComponent(null); setIsAddModalOpen(true); }}
                                     style={btnPrimaryStyle}>+ Додати деталь
                             </button>
                         </div>
@@ -251,8 +267,9 @@ export default function AdminPage() {
                                             <td style={{...tdStyle, color: '#1e293b', fontWeight: 'bold'}}>
                                                 {parseFloat(item.price).toFixed(0)} ₴
                                             </td>
-                                            <td style={{...tdStyle, textAlign: 'right'}}>
-                                                <button style={btnEditStyle}>Редагувати</button>
+                                            <td style={{...tdStyle, textAlign: 'right', display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
+                                                <button style={btnEditStyle} onClick={() => { setEditingComponent(item); setIsAddModalOpen(true); }}>Редагувати</button>
+                                                <button style={{...btnEditStyle, color: '#dc2626', backgroundColor: '#fef2f2'}} onClick={() => handleDelete(item.id)}>Видалити</button>
                                             </td>
                                         </tr>
                                     ))}
@@ -329,8 +346,9 @@ export default function AdminPage() {
             </div>
             <AddComponentModal
                 isOpen={isAddModalOpen}
-                onClose={() => setIsAddModalOpen(false)}
+                onClose={() => { setIsAddModalOpen(false); setEditingComponent(null); }}
                 onSuccess={handleComponentAdded}
+                componentToEdit={editingComponent}
             />
         </div>
     );

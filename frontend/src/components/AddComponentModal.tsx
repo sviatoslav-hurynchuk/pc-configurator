@@ -1,6 +1,7 @@
 import { useState, useEffect, type CSSProperties, type FormEvent } from 'react';
 import { PC_CATEGORIES } from '../constants';
-import { createComponent } from '../services/api';
+import { createComponent, updateComponent } from '../services/api';
+import type { PcComponent } from '../types';
 
 const CATEGORY_SPECS_TEMPLATE: Record<number, string[]> = {
     1: ['socket', 'cores', 'threads'],
@@ -52,9 +53,10 @@ interface AddComponentModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: () => void;
+    componentToEdit?: PcComponent | null;
 }
 
-export default function AddComponentModal({ isOpen, onClose, onSuccess }: AddComponentModalProps) {
+export default function AddComponentModal({ isOpen, onClose, onSuccess, componentToEdit }: AddComponentModalProps) {
     const [name, setName] = useState('');
     const [categoryId, setCategoryId] = useState(PC_CATEGORIES[0].id);
     const [price, setPrice] = useState('');
@@ -66,14 +68,38 @@ export default function AddComponentModal({ isOpen, onClose, onSuccess }: AddCom
 
     useEffect(() => {
         if (isOpen) {
-            const templateKeys = CATEGORY_SPECS_TEMPLATE[categoryId] || [];
-            if (templateKeys.length > 0) {
-                setSpecFields(templateKeys.map(key => ({ key, value: '' })));
+            if (componentToEdit) {
+                setName(componentToEdit.name);
+                setCategoryId(componentToEdit.category_id);
+                setPrice(componentToEdit.price.toString());
+                setPowerDraw((componentToEdit.power_draw_watts || 0).toString());
+                setImageUrl(componentToEdit.image_url || '');
+                
+                const specsObj = typeof componentToEdit.specs === 'string' ? JSON.parse(componentToEdit.specs) : componentToEdit.specs;
+                if (specsObj && Object.keys(specsObj).length > 0) {
+                    setSpecFields(Object.entries(specsObj).map(([key, value]) => ({ key, value: String(value) })));
+                } else {
+                    const templateKeys = CATEGORY_SPECS_TEMPLATE[componentToEdit.category_id] || [];
+                    setSpecFields(templateKeys.length > 0 ? templateKeys.map(k => ({ key: k, value: '' })) : [{ key: '', value: '' }]);
+                }
             } else {
-                setSpecFields([{ key: '', value: '' }]);
+                setName('');
+                setCategoryId(PC_CATEGORIES[0].id);
+                setPrice('');
+                setPowerDraw('0');
+                setImageUrl('');
+                const templateKeys = CATEGORY_SPECS_TEMPLATE[PC_CATEGORIES[0].id] || [];
+                setSpecFields(templateKeys.length > 0 ? templateKeys.map(k => ({ key: k, value: '' })) : [{ key: '', value: '' }]);
             }
+            setError('');
         }
-    }, [categoryId, isOpen]);
+    }, [isOpen, componentToEdit]);
+
+    const handleCategoryChange = (newCatId: number) => {
+        setCategoryId(newCatId);
+        const templateKeys = CATEGORY_SPECS_TEMPLATE[newCatId] || [];
+        setSpecFields(templateKeys.length > 0 ? templateKeys.map(k => ({ key: k, value: '' })) : [{ key: '', value: '' }]);
+    };
 
     if (!isOpen) return null;
 
@@ -110,13 +136,11 @@ export default function AddComponentModal({ isOpen, onClose, onSuccess }: AddCom
         };
 
         try {
-            const res = await createComponent(payload);
+            const res = componentToEdit
+                ? await updateComponent(componentToEdit.id, payload)
+                : await createComponent(payload);
+
             if (res.status === 'success') {
-                setName('');
-                setPrice('');
-                setPowerDraw('0');
-                setImageUrl('');
-                setSpecFields([{ key: '', value: '' }]);
                 onSuccess();
             } else {
                 setError(res.message || 'Сталася помилка при збереженні.');
@@ -132,7 +156,7 @@ export default function AddComponentModal({ isOpen, onClose, onSuccess }: AddCom
         <div style={overlayStyle}>
             <div style={modalStyle}>
                 <div style={headerStyle}>
-                    <h2 style={titleStyle}>Додати нову деталь</h2>
+                    <h2 style={titleStyle}>{componentToEdit ? 'Редагувати деталь' : 'Додати нову деталь'}</h2>
                     <button onClick={onClose} style={closeBtnStyle}>✕</button>
                 </div>
 
@@ -157,7 +181,7 @@ export default function AddComponentModal({ isOpen, onClose, onSuccess }: AddCom
                             <label style={labelStyle}>Категорія</label>
                             <select
                                 value={categoryId}
-                                onChange={(e) => setCategoryId(Number(e.target.value))}
+                                onChange={(e) => handleCategoryChange(Number(e.target.value))}
                                 style={inputStyle}
                             >
                                 {PC_CATEGORIES.map(c => (
@@ -267,7 +291,7 @@ export default function AddComponentModal({ isOpen, onClose, onSuccess }: AddCom
                     <div style={footerStyle}>
                         <button type="button" onClick={onClose} style={btnCancelStyle}>Скасувати</button>
                         <button type="submit" disabled={isSubmitting} style={btnSubmitStyle}>
-                            {isSubmitting ? 'Збереження...' : 'Зберегти деталь'}
+                            {isSubmitting ? 'Збереження...' : (componentToEdit ? 'Зберегти зміни' : 'Зберегти деталь')}
                         </button>
                     </div>
                 </form>
@@ -287,8 +311,6 @@ const rowStyle: CSSProperties = { display: 'flex', gap: '20px' };
 const formGroupStyle: CSSProperties = { marginBottom: '20px' };
 const labelStyle: CSSProperties = { display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold', color: '#475569' };
 const inputStyle: CSSProperties = { width: '100%', padding: '12px 15px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '15px', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' };
-const textareaStyle: CSSProperties = { ...inputStyle, minHeight: '120px', fontFamily: 'monospace', resize: 'vertical' };
-const helpTextStyle: CSSProperties = { marginTop: '6px', fontSize: '12px', color: '#94a3b8' };
 const footerStyle: CSSProperties = { padding: '20px 30px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '15px', backgroundColor: '#f8fafc', borderRadius: '0 0 12px 12px' };
 const btnCancelStyle: CSSProperties = { padding: '10px 20px', backgroundColor: '#fff', border: '1px solid #cbd5e1', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold', color: '#475569' };
 const btnSubmitStyle: CSSProperties = { padding: '10px 25px', backgroundColor: '#a5c926', border: 'none', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold', color: '#fff' };

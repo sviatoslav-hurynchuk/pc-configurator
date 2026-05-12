@@ -39,6 +39,8 @@ $router = new Router();
 $componentController = new ComponentController();
 $router->add('GET', '/api/components', [$componentController, 'index']);
 $router->add('POST', '/api/admin/components', [$componentController, 'storeComponent']);
+$router->add('POST', '/api/admin/components/([0-9]+)', [$componentController, 'updateComponent']);
+$router->add('DELETE', '/api/admin/components/([0-9]+)', [$componentController, 'deleteComponent']);
 
 $orderController = new OrderController();
 $router->add('POST', '/api/orders', [$orderController, 'save']);

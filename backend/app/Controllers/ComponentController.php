@@ -42,4 +42,49 @@ class ComponentController extends BaseController {
             echo json_encode(['status' => 'error', 'message' => 'Помилка бази даних при збереженні']);
         }
     }
+
+    public function updateComponent($id) {
+        if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+            http_response_code(403);
+            echo json_encode(['status' => 'error', 'message' => 'Доступ заборонено']);
+            return;
+        }
+
+        $input = file_get_contents("php://input");
+        $data = json_decode($input, true);
+
+        if (!$data || empty($data['name']) || empty($data['category_id']) || empty($data['price'])) {
+            http_response_code(400);
+            echo json_encode(['status' => 'error', 'message' => 'Не всі обов\'язкові поля заповнені']);
+            return;
+        }
+
+        $componentModel = new ComponentModel();
+        $isUpdated = $componentModel->updateComponent((int)$id, $data);
+
+        if ($isUpdated) {
+            echo json_encode(['status' => 'success', 'message' => 'Деталь успішно оновлено']);
+        } else {
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'message' => 'Помилка бази даних при оновленні']);
+        }
+    }
+
+    public function deleteComponent($id) {
+        if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+            http_response_code(403);
+            echo json_encode(['status' => 'error', 'message' => 'Доступ заборонено']);
+            return;
+        }
+
+        $componentModel = new ComponentModel();
+        $isDeleted = $componentModel->deleteComponent((int)$id);
+
+        if ($isDeleted) {
+            echo json_encode(['status' => 'success', 'message' => 'Деталь успішно видалено']);
+        } else {
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'message' => 'Помилка бази даних при видаленні']);
+        }
+    }
 }

@@ -33,4 +33,28 @@ class ComponentModel extends BaseModel {
             'specs' => $data['specs']
         ]);
     }
+
+    public function updateComponent(int $id, array $data): bool {
+        $sql = "UPDATE components SET category_id = :category_id, name = :name, price = :price, 
+                power_draw_watts = :power_draw_watts, image_url = :image_url, specs = :specs 
+                WHERE id = :id";
+        
+        $stmt = $this->db->prepare($sql);
+        
+        return $stmt->execute([
+            'id' => $id,
+            'category_id' => $data['category_id'],
+            'name' => $data['name'],
+            'price' => $data['price'],
+            'power_draw_watts' => $data['power_draw_watts'],
+            'image_url' => $data['image_url'],
+            'specs' => $data['specs']
+        ]);
+    }
+
+    public function deleteComponent(int $id): bool {
+        $sql = "DELETE FROM components WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute(['id' => $id]);
+    }
 }
