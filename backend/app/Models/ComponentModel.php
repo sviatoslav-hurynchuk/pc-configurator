@@ -18,4 +18,19 @@ class ComponentModel extends BaseModel {
 
         return $components;
     }
+    public function createComponent(array $data): bool {
+        $sql = "INSERT INTO components (category_id, name, price, power_draw_watts, image_url, specs) 
+                VALUES (:category_id, :name, :price, :power_draw_watts, :image_url, :specs)";
+
+        $stmt = $this->db->prepare($sql);
+
+        return $stmt->execute([
+            'category_id' => $data['category_id'],
+            'name' => $data['name'],
+            'price' => $data['price'],
+            'power_draw_watts' => $data['power_draw_watts'],
+            'image_url' => $data['image_url'],
+            'specs' => $data['specs']
+        ]);
+    }
 }

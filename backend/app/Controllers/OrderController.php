@@ -64,4 +64,17 @@ class OrderController extends BaseController {
             $this->jsonResponse(['status' => 'error', 'message' => 'Помилка оформлення'], 500);
         }
     }
+    public function getAllOrders(): void
+    {
+        if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+            http_response_code(403);
+            echo json_encode(['status' => 'error', 'message' => 'Доступ заборонено']);
+            return;
+        }
+
+        $orderModel = new OrderModel();
+        $orders = $orderModel->getAllOrdersForAdmin();
+
+        echo json_encode($orders);
+    }
 }

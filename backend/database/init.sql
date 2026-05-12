@@ -21,7 +21,7 @@ CREATE TABLE auth_tokens (
 
 -- pass admin123
 INSERT INTO users (name, email, password_hash, role)
-VALUES ('Admin', 'admin@pcbuilder.com', '$2y$10$8.M1yQv2bI6/2J9zG5uM.O0v8X.4v8r5/8.4.8.4.8.4.8.4.8', 'admin');
+VALUES ('Admin', 'admin@pcbuilder.com', '$2a$12$AIHUZ5WP.5A/f1kwuSOk0uDvIAPHjDJUN6inW8SqA5rSvHWUhT06S', 'admin');
 CREATE TABLE IF NOT EXISTS categories
 (
     id         INT AUTO_INCREMENT PRIMARY KEY,
