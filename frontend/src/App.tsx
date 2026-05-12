@@ -177,7 +177,7 @@ function App() {
     if (loading) return <h2 style={{textAlign: 'center', marginTop: '50px'}}>Завантаження...</h2>;
 
     const basicCategories = PC_CATEGORIES.filter(c => [1, 2, 3, 4].includes(c.id));
-    const mandatoryCategories = PC_CATEGORIES.filter(c => [5, 6, 7, 8, 10, 11].includes(c.id));
+    const mandatoryCategories = PC_CATEGORIES.filter(c => [5, 6, 7, 8, 9, 10, 11].includes(c.id));
     const optionalCategories = PC_CATEGORIES.filter(c => [12, 13, 14].includes(c.id));
 
     const renderCategoryGroup = (title: string, categories: typeof PC_CATEGORIES) => (
@@ -580,6 +580,14 @@ function App() {
                         const element = document.getElementById(`category-${categoryId}`);
                         if (element) {
                             element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            element.style.transition = 'all 1s ease';
+                            element.style.border = '2px solid #a5c926';
+                            element.style.boxShadow = '0 0 15px rgba(165, 201, 38, 0.6)';
+
+                            setTimeout(() => {
+                                element.style.border = '1px solid #e0e0e0';
+                                element.style.boxShadow = 'none';
+                            }, 2000);
                         }
                     }, 100);
                 }}
