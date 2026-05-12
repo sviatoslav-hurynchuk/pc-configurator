@@ -1,4 +1,4 @@
-import {useState, useContext, type SyntheticEvent} from 'react';
+import { useState, useContext, type SyntheticEvent } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { loginUser, registerUser } from '../services/api';
 
@@ -20,7 +20,7 @@ const CustomInput = ({ label, type = 'text', value, onChange, bgColor = '#fff', 
             style={{
                 width: '100%', padding: '14px 15px', border: `1px solid ${isError ? '#e74c3c' : '#ccc'}`,
                 borderRadius: '8px', boxSizing: 'border-box', backgroundColor: bgColor, outline: 'none',
-                fontSize: '14px', color: '#333'
+                fontSize: '14px', color: '#333', transition: 'border 0.2s ease'
             }}
         />
         {isError && <div style={{ color: '#e74c3c', fontSize: '12px', marginTop: '4px' }}>{errorMsg}</div>}
@@ -35,10 +35,17 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
+    
+    const [rememberMe, setRememberMe] = useState(true);
+
     const [error, setError] = useState('');
 
+    
     const [hoverLogin, setHoverLogin] = useState(false);
     const [hoverRegister, setHoverRegister] = useState(false);
+    const [hoverClose, setHoverClose] = useState(false);
+    const [hoverSubmit, setHoverSubmit] = useState(false);
 
     if (!isOpen) return null;
 
@@ -48,7 +55,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
         try {
             if (isLoginView) {
-                const res = await loginUser({ email, password });
+                
+                const res = await loginUser({ email, password, rememberMe });
                 if (res.status === 'success') {
                     setUser(res.user);
                     onClose();
@@ -70,7 +78,6 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     };
 
 
-
     return (
         <div style={{
             position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
@@ -84,25 +91,16 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             }}>
                 <button
                     onClick={onClose}
+                    onMouseEnter={() => setHoverClose(true)}
+                    onMouseLeave={() => setHoverClose(false)}
                     style={{
-                        position: 'absolute',
-                        top: '-20px',
-                        right: '-20px',
-                        width: '40px',
-                        height: '40px',
-                        backgroundColor: '#fff',
-                        border: '1px solid #e3e3e3',
-                        borderRadius: '20px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 0,
-                        margin: 0,
-                        zIndex: 10,
-                        cursor: 'pointer',
-                        color: '#000',
-                        fontSize: '16px',
-                        outline: 'none'
+                        position: 'absolute', top: '-20px', right: '-20px', width: '40px', height: '40px',
+                        backgroundColor: hoverClose ? '#ff4d4f' : '#fff',
+                        border: `1px solid ${hoverClose ? '#ff4d4f' : '#e3e3e3'}`,
+                        borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        padding: 0, margin: 0, zIndex: 10, cursor: 'pointer',
+                        color: hoverClose ? '#fff' : '#000', fontSize: '16px', outline: 'none',
+                        transform: hoverClose ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'all 0.3s ease'
                     }}
                 >
                     ✕
@@ -151,16 +149,28 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', fontSize: '14px' }}>
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                    <input type="checkbox" defaultChecked style={{ accentColor: '#a5c926', width: '16px', height: '16px' }} />
+                                    <input
+                                        type="checkbox"
+                                        checked={rememberMe}
+                                        onChange={(e) => setRememberMe(e.target.checked)}
+                                        style={{ accentColor: '#a5c926', width: '16px', height: '16px', cursor: 'pointer' }}
+                                    />
                                     Запам'ятати пароль
                                 </label>
-                                <span style={{ color: '#666', borderBottom: '1px dashed #666', cursor: 'pointer' }}>Забув пароль</span>
                             </div>
 
-                            <button type="submit" style={{
-                                width: '100%', padding: '14px', backgroundColor: '#a5c926', color: 'white',
-                                border: 'none', borderRadius: '30px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer'
-                            }}>
+                            <button
+                                type="submit"
+                                onMouseEnter={() => setHoverSubmit(true)}
+                                onMouseLeave={() => setHoverSubmit(false)}
+                                style={{
+                                    width: '100%', padding: '14px',
+                                    backgroundColor: hoverSubmit ? '#8eb01e' : '#a5c926',
+                                    color: 'white', border: 'none', borderRadius: '30px',
+                                    fontWeight: 'bold', fontSize: '16px', cursor: 'pointer',
+                                    transform: hoverSubmit ? 'scale(1.02)' : 'scale(1)',
+                                    transition: 'all 0.2s ease'
+                                }}>
                                 Увійти
                             </button>
                         </>
@@ -170,10 +180,18 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             <CustomInput label="E-mail" type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} required />
                             <CustomInput label="Пароль" type="password" value={password} onChange={(e: any) => setPassword(e.target.value)} required />
 
-                            <button type="submit" style={{
-                                width: '100%', padding: '14px', backgroundColor: '#111', color: 'white',
-                                border: 'none', borderRadius: '30px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', marginTop: '10px'
-                            }}>
+                            <button
+                                type="submit"
+                                onMouseEnter={() => setHoverSubmit(true)}
+                                onMouseLeave={() => setHoverSubmit(false)}
+                                style={{
+                                    width: '100%', padding: '14px',
+                                    backgroundColor: hoverSubmit ? '#333' : '#111',
+                                    color: 'white', border: 'none', borderRadius: '30px',
+                                    fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', marginTop: '10px',
+                                    transform: hoverSubmit ? 'scale(1.02)' : 'scale(1)',
+                                    transition: 'all 0.2s ease'
+                                }}>
                                 Зареєструватися
                             </button>
                         </>

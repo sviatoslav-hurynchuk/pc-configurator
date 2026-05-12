@@ -9,6 +9,16 @@ CREATE TABLE IF NOT EXISTS users
     created_at    TIMESTAMP   DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE auth_tokens (
+                             id INT AUTO_INCREMENT PRIMARY KEY,
+                             user_id INT NOT NULL,
+                             series CHAR(64) NOT NULL,
+                             token_hash CHAR(64) NOT NULL,
+                             expires_at DATETIME NOT NULL,
+                             UNIQUE KEY (series),
+                             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- pass admin123
 INSERT INTO users (name, email, password_hash, role)
 VALUES ('Admin', 'admin@telemart.local', '$2y$10$8.M1yQv2bI6/2J9zG5uM.O0v8X.4v8r5/8.4.8.4.8.4.8.4.8', 'admin');
