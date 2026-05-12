@@ -48,6 +48,14 @@ function App() {
     const ramType = getComponentSpec(ram, 'type');
     const moboRamType = getComponentSpec(mobo, 'ram_type');
 
+    const psu = build[10]; // Категорія 10 - Блок живлення
+    const psuWattageStr = getComponentSpec(psu, 'wattage');
+    const psuWattage = psuWattageStr ? Number(psuWattageStr) : 0;
+
+    const totalWattage = Object.values(build).reduce((sum, item) => {
+        return sum + (Number(item.power_draw_watts) || 0);
+    }, 0);
+
     const compatibilityErrors: string[] = [];
 
     if (cpuSocket && moboSocket && cpuSocket !== moboSocket) {
@@ -60,6 +68,11 @@ function App() {
         compatibilityErrors.push(`Платформа AM5 підтримує лише пам'ять DDR5 (обрано ${ramType}).`);
     }
 
+    if (psu && psuWattage > 0 && totalWattage > psuWattage) {
+        compatibilityErrors.push(`Блоку живлення на ${psuWattage} Вт недостатньо! Система споживає ${totalWattage} Вт.`);
+    } else if (psu && psuWattage > 0 && totalWattage > psuWattage * 0.9) {
+        compatibilityErrors.push(`Блок живлення працюватиме на межі можливостей (${totalWattage} Вт / ${psuWattage} Вт). Рекомендуємо взяти потужніший.`);
+    }
     const hasErrors = compatibilityErrors.length > 0;
 
     useEffect(() => {
@@ -517,6 +530,20 @@ function App() {
                                 )}
 
                                 <div style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
+                                    {totalWattage > 0 && (
+                                        <div style={{
+                                            display: 'flex', justifyContent: 'space-between',
+                                            alignItems: 'center', paddingBottom: '10px',
+                                            borderBottom: '1px dashed #eee', fontSize: '14px'
+                                        }}>
+                                            <span style={{color: '#666'}}>Енергоспоживання:</span>
+                                            <strong style={{
+                                                color: (psu && totalWattage > psuWattage * 0.9) ? '#e74c3c' : '#333'
+                                            }}>
+                                                {totalWattage} Вт {psu ? `/ ${psuWattage} Вт` : ''}
+                                            </strong>
+                                        </div>
+                                    )}
                                     <div style={{marginBottom: '5px'}}>
                                         <span style={{
                                             textDecoration: 'line-through',
