@@ -44,4 +44,24 @@ class OrderController extends BaseController {
             'orders' => $orders
         ]);
     }
+    public function updateStatus(): void {
+        $this->requireAuth();
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $orderId = $input['orderId'] ?? null;
+        $status = $input['status'] ?? 'processing';
+
+        if (!$orderId) {
+            $this->jsonResponse(['status' => 'error', 'message' => 'Не вказано ID замовлення'], 400);
+            return;
+        }
+
+        $userId = $_SESSION['user_id'];
+
+        if ($this->orderModel->updateOrderStatus($orderId, $userId, $status)) {
+            $this->jsonResponse(['status' => 'success', 'message' => 'Замовлення успішно оформлено']);
+        } else {
+            $this->jsonResponse(['status' => 'error', 'message' => 'Помилка оформлення'], 500);
+        }
+    }
 }

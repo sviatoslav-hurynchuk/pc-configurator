@@ -57,3 +57,7 @@ export const saveBuild = async (data: { componentIds: number[], totalPrice: numb
     const response = await fetch(`${API_BASE_URL}/api/orders`, fetchOptions('POST', data));
     return response.json();
 };
+export const updateOrderStatus = async (orderId: number, status: string) => {
+    const response = await fetch(`${API_BASE_URL}/api/orders/status`, fetchOptions('POST', { orderId, status }));
+    return response.json();
+};
