@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { fetchComponents, logoutUser, saveBuild } from '../services/api';
 import type { ComponentSpecs, PcComponent } from '../types';
 import { PC_CATEGORIES } from '../constants';
@@ -9,6 +10,7 @@ import OrderHistoryModal from "../components/OrderHistoryModal";
 import BuildOverviewModal from "../components/BuildOverviewModal";
 
 function ConfiguratorPage() {
+    const navigate = useNavigate();
     const [components, setComponents] = useState<PcComponent[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -231,7 +233,17 @@ function ConfiguratorPage() {
 
                                 {selectedItem && !isExpanded ? (
                                     <div style={{display: 'flex', alignItems: 'center', gap: '20px'}}>
-                                        <span style={{fontSize: '14px'}}>{selectedItem.name}</span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            {selectedItem.image_url && (
+                                                <img 
+                                                    src={selectedItem.image_url} 
+                                                    alt={selectedItem.name}
+                                                    style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '4px' }}
+                                                    onError={(e) => { (e.target as HTMLImageElement).src = 'https://picsum.photos/40/40?random=1'; }}
+                                                />
+                                            )}
+                                            <span style={{fontSize: '14px', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={selectedItem.name}>{selectedItem.name}</span>
+                                        </div>
                                         <div style={{textAlign: 'right', whiteSpace: 'nowrap'}}>
                                             <span style={{
                                                 textDecoration: 'line-through',
@@ -301,10 +313,20 @@ function ConfiguratorPage() {
                                         {categoryProducts.map(product => (
                                             <tr key={product.id} style={{borderBottom: '1px solid #eee'}}>
                                                 <td style={{padding: '15px 0'}}>
-                                                    <div style={{
-                                                        fontWeight: 'bold',
-                                                        fontSize: '14px'
-                                                    }}>{product.name}</div>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                                        {product.image_url && (
+                                                            <img 
+                                                                src={product.image_url} 
+                                                                alt={product.name}
+                                                                style={{ width: '50px', height: '50px', objectFit: 'contain', borderRadius: '4px' }}
+                                                                onError={(e) => { (e.target as HTMLImageElement).src = 'https://picsum.photos/50/50?random=1'; }}
+                                                            />
+                                                        )}
+                                                        <div style={{
+                                                            fontWeight: 'bold',
+                                                            fontSize: '14px'
+                                                        }}>{product.name}</div>
+                                                    </div>
                                                 </td>
                                                 <td style={{textAlign: 'right'}}>
                                                     <span style={{
@@ -363,7 +385,19 @@ function ConfiguratorPage() {
                 borderBottom: '1px solid #eee',
                 marginBottom: '20px'
             }}>
-                <div style={{fontSize: '24px', fontWeight: 'bold', color: '#333'}}>PC CONFIGURATOR</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
+                    <div style={{fontSize: '24px', fontWeight: 'bold', color: '#333'}}>PC CONFIGURATOR</div>
+                    <button
+                        onClick={() => navigate('/catalog')}
+                        style={{
+                            padding: '8px 20px', borderRadius: '20px',
+                            backgroundColor: '#f1f1f1', color: '#333', border: 'none',
+                            fontWeight: 'bold', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: '8px'
+                        }}>
+                        <span style={{fontSize: '18px'}}>☰</span> Каталог
+                    </button>
+                </div>
 
                 <div>
                     {!authLoading && (

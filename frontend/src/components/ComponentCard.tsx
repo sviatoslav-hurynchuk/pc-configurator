@@ -2,7 +2,7 @@ import type {PcComponent} from '../types';
 
 interface Props {
     item: PcComponent;
-    onAdd: () => void;
+    onAdd?: () => void;
 }
 
 export default function ComponentCard({ item, onAdd }: Props) {
@@ -16,30 +16,35 @@ export default function ComponentCard({ item, onAdd }: Props) {
                 src={item.image_url || ''}
                 alt={item.name}
                 style={{ width: '100%', height: '150px', objectFit: 'contain' }}
-                onError={(e) => { (e.target as HTMLImageElement).src = 'https://picsum.photos/300/200?random=1'; }}
+                onError={(e) => {
+                    if (item.image_url != null) {
+                        (e.target as HTMLImageElement).src = item.image_url;
+                    } }}
             />
             <h3 style={{ fontSize: '1.1rem', margin: '10px 0' }}>{item.name}</h3>
             <p style={{ color: '#666', fontSize: '0.9rem' }}>{item.description}</p>
             <h2 style={{ color: '#2ecc71', margin: '10px 0' }}>${item.price}</h2>
 
-            <div style={{ backgroundColor: '#f9f9f9', padding: '8px', borderRadius: '4px', fontSize: '0.8rem' }}>
+            <div style={{ backgroundColor: '#f9f9f9', padding: '8px', borderRadius: '4px', fontSize: '0.8rem', flexGrow: 1 }}>
                 <strong>Specs:</strong>
                 <ul style={{ paddingLeft: '20px', margin: '5px 0' }}>
                     {item.specs && Object.entries(item.specs).map(([key, value]) => (
-                        <li key={key}>{key}: {value}</li>
+                        <li key={key}>{key}: {String(value)}</li>
                     ))}
                 </ul>
             </div>
 
-            <button
-                onClick={onAdd}
-                style={{
-                    width: '100%', padding: '10px', marginTop: 'auto', // marginTop: 'auto' притискає кнопку донизу
-                    backgroundColor: '#3498db', color: 'white', border: 'none',
-                    borderRadius: '4px', cursor: 'pointer'
-                }}>
-                Add to Build
-            </button>
+            {onAdd && (
+                <button
+                    onClick={onAdd}
+                    style={{
+                        width: '100%', padding: '10px', marginTop: '10px',
+                        backgroundColor: '#3498db', color: 'white', border: 'none',
+                        borderRadius: '4px', cursor: 'pointer'
+                    }}>
+                    Add to Build
+                </button>
+            )}
         </div>
     );
 }
