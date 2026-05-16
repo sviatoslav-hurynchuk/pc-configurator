@@ -1,6 +1,6 @@
-import { useState, useEffect, type CSSProperties, type FormEvent } from 'react';
+import { useState, useEffect, useRef, type CSSProperties, type FormEvent } from 'react';
 import { PC_CATEGORIES } from '../constants';
-import { createComponent, updateComponent } from '../services/api';
+import { createComponent, updateComponent, uploadImage } from '../services/api';
 import type { PcComponent } from '../types';
 
 const CATEGORY_SPECS_TEMPLATE: Record<number, string[]> = {
@@ -62,9 +62,12 @@ export default function AddComponentModal({ isOpen, onClose, onSuccess, componen
     const [price, setPrice] = useState('');
     const [powerDraw, setPowerDraw] = useState('0');
     const [imageUrl, setImageUrl] = useState('');
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
     const [specFields, setSpecFields] = useState([{ key: '', value: '' }]);
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -74,6 +77,7 @@ export default function AddComponentModal({ isOpen, onClose, onSuccess, componen
                 setPrice(componentToEdit.price.toString());
                 setPowerDraw((componentToEdit.power_draw_watts || 0).toString());
                 setImageUrl(componentToEdit.image_url || '');
+                setImagePreview(componentToEdit.image_url || null);
                 
                 const specsObj = typeof componentToEdit.specs === 'string' ? JSON.parse(componentToEdit.specs) : componentToEdit.specs;
                 if (specsObj && Object.keys(specsObj).length > 0) {
@@ -88,6 +92,8 @@ export default function AddComponentModal({ isOpen, onClose, onSuccess, componen
                 setPrice('');
                 setPowerDraw('0');
                 setImageUrl('');
+                setImagePreview(null);
+                if (fileInputRef.current) fileInputRef.current.value = '';
                 const templateKeys = CATEGORY_SPECS_TEMPLATE[PC_CATEGORIES[0].id] || [];
                 setSpecFields(templateKeys.length > 0 ? templateKeys.map(k => ({ key: k, value: '' })) : [{ key: '', value: '' }]);
             }
@@ -99,6 +105,30 @@ export default function AddComponentModal({ isOpen, onClose, onSuccess, componen
         setCategoryId(newCatId);
         const templateKeys = CATEGORY_SPECS_TEMPLATE[newCatId] || [];
         setSpecFields(templateKeys.length > 0 ? templateKeys.map(k => ({ key: k, value: '' })) : [{ key: '', value: '' }]);
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setImagePreview(URL.createObjectURL(file));
+        setIsUploading(true);
+        setError('');
+
+        try {
+            const result = await uploadImage(file);
+            if (result.status === 'success' && result.url) {
+                setImageUrl(`http://localhost:8000${result.url}`);
+            } else {
+                setError(result.message || 'Помилка завантаження зображення');
+                setImagePreview(null);
+            }
+        } catch {
+            setError('Не вдалося завантажити зображення на сервер');
+            setImagePreview(null);
+        } finally {
+            setIsUploading(false);
+        }
     };
 
     if (!isOpen) return null;
@@ -206,7 +236,7 @@ export default function AddComponentModal({ isOpen, onClose, onSuccess, componen
 
                     <div style={rowStyle}>
                         <div style={{...formGroupStyle, flex: 1}}>
-                            <label style={labelStyle}>Енергоспоживання (Вт)</label>
+                            <label style={labelStyle}>Потужність (Вт)</label>
                             <input
                                 type="number"
                                 required
@@ -218,15 +248,36 @@ export default function AddComponentModal({ isOpen, onClose, onSuccess, componen
                         </div>
 
                         <div style={{...formGroupStyle, flex: 2}}>
-                            <label style={labelStyle}>URL зображення</label>
-                            <input
-                                type="url"
-                                required
-                                value={imageUrl}
-                                onChange={(e) => setImageUrl(e.target.value)}
-                                style={inputStyle}
-                                placeholder="https://..."
-                            />
+                            <label style={labelStyle}>Зображення</label>
+                            <div style={uploadBlockStyle}>
+                                <div style={uploadBtnWrapStyle}>
+                                    <button
+                                        type="button"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        style={btnUploadStyle}
+                                        disabled={isUploading}
+                                    >
+                                        {isUploading ? '⏳ Завантаження...' : '📁'}
+                                    </button>
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp,image/gif"
+                                        style={{ display: 'none' }}
+                                        onChange={handleFileChange}
+                                    />
+                                    {imagePreview && (
+                                        <img src={imagePreview} alt="preview" style={previewStyle} />
+                                    )}
+                                    <input
+                                        type="url"
+                                        value={imageUrl}
+                                        onChange={(e) => { setImageUrl(e.target.value); setImagePreview(null); }}
+                                        style={{...inputStyle, marginBottom: 0}}
+                                        placeholder="https://..."
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -317,3 +368,7 @@ const btnSubmitStyle: CSSProperties = { padding: '10px 25px', backgroundColor: '
 const specRowStyle: CSSProperties = { display: 'flex', gap: '10px', marginBottom: '10px' };
 const btnAddSpecStyle: CSSProperties = { background: 'none', border: 'none', color: '#a5c926', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', padding: 0 };
 const btnRemoveSpecStyle: CSSProperties = { background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', width: '42px', height: '42px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0, transition: 'background-color 0.2s' };
+const uploadBlockStyle: CSSProperties = { display: 'flex', flexDirection: 'column', gap: '10px' };
+const uploadBtnWrapStyle: CSSProperties = { display: 'flex', alignItems: 'center', gap: '12px' };
+const btnUploadStyle: CSSProperties = { padding: '10px 16px', backgroundColor: '#f1f5f9', border: '1px dashed #94a3b8', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', color: '#475569', whiteSpace: 'nowrap', flexShrink: 0 };
+const previewStyle: CSSProperties = { width: '52px', height: '52px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e2e8f0' };

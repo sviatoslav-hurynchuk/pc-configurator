@@ -84,3 +84,15 @@ export const deleteComponent = async (id: number) => {
     const response = await fetch(`${API_BASE_URL}/api/admin/components/${id}`, fetchOptions('DELETE'));
     return response.json();
 };
+
+export const uploadImage = async (file: File): Promise<{ status: string; url?: string; message?: string }> => {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch(`${API_BASE_URL}/api/admin/upload`, {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+    });
+    return response.json();
+};
