@@ -16,11 +16,8 @@ class ComponentController extends BaseController {
         ]);
     }
     public function storeComponent() {
-        if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
-            http_response_code(403);
-            echo json_encode(['status' => 'error', 'message' => 'Доступ заборонено']);
-            return;
-        }
+        $this->requireAdmin();
+
 
         $input = file_get_contents("php://input");
         $data = json_decode($input, true);
@@ -44,11 +41,8 @@ class ComponentController extends BaseController {
     }
 
     public function updateComponent($id) {
-        if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
-            http_response_code(403);
-            echo json_encode(['status' => 'error', 'message' => 'Доступ заборонено']);
-            return;
-        }
+        $this->requireAdmin();
+
 
         $input = file_get_contents("php://input");
         $data = json_decode($input, true);
@@ -71,11 +65,8 @@ class ComponentController extends BaseController {
     }
 
     public function deleteComponent($id) {
-        if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
-            http_response_code(403);
-            echo json_encode(['status' => 'error', 'message' => 'Доступ заборонено']);
-            return;
-        }
+        $this->requireAdmin();
+
 
         $componentModel = new ComponentModel();
         $isDeleted = $componentModel->deleteComponent((int)$id);

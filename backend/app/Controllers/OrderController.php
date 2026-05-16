@@ -66,11 +66,7 @@ class OrderController extends BaseController {
     }
     public function getAllOrders(): void
     {
-        if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
-            http_response_code(403);
-            echo json_encode(['status' => 'error', 'message' => 'Доступ заборонено']);
-            return;
-        }
+        $this->requireAdmin();
 
         $orderModel = new OrderModel();
         $orders = $orderModel->getAllOrdersForAdmin();
