@@ -22,9 +22,11 @@ class Router {
 
         try {
             foreach ($this->routes as $route) {
-                if ($route['method'] === $method && $route['path'] === $path) {
+                $pattern = '#^' . $route['path'] . '$#';
+                if ($route['method'] === $method && preg_match($pattern, $path, $matches)) {
+                    array_shift($matches); // remove the full match
 
-                    call_user_func($route['callback']);
+                    call_user_func_array($route['callback'], $matches);
 
                     $output = ob_get_contents();
                     ob_end_flush();

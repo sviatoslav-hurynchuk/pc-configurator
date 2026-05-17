@@ -64,4 +64,13 @@ class OrderController extends BaseController {
             $this->jsonResponse(['status' => 'error', 'message' => 'Помилка оформлення'], 500);
         }
     }
+    public function getAllOrders(): void
+    {
+        $this->requireAdmin();
+
+        $orderModel = new OrderModel();
+        $orders = $orderModel->getAllOrdersForAdmin();
+
+        echo json_encode($orders);
+    }
 }

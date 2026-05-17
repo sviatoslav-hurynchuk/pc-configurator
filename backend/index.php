@@ -1,4 +1,5 @@
 <?php
+session_start();
 header('Access-Control-Allow-Origin: http://localhost:5173');
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
@@ -37,11 +38,16 @@ $router = new Router();
 
 $componentController = new ComponentController();
 $router->add('GET', '/api/components', [$componentController, 'index']);
+$router->add('POST', '/api/admin/components', [$componentController, 'storeComponent']);
+$router->add('POST', '/api/admin/components/([0-9]+)', [$componentController, 'updateComponent']);
+$router->add('DELETE', '/api/admin/components/([0-9]+)', [$componentController, 'deleteComponent']);
+$router->add('POST', '/api/admin/upload', [$componentController, 'uploadImage']);
 
 $orderController = new OrderController();
 $router->add('POST', '/api/orders', [$orderController, 'save']);
 $router->add('GET', '/api/orders', [$orderController, 'getUserHistory']);
 $router->add('POST', '/api/orders/status', [$orderController, 'updateStatus']);
+$router->add('GET', '/api/admin/orders', [$orderController, 'getAllOrders']);
 
 $authController = new AuthController();
 $router->add('POST', '/api/register', [$authController, 'register']);

@@ -6,6 +6,7 @@ services:
       - "8000:80"
     volumes:
       - ./backend:/var/www/html
+      - uploads_data:/var/www/html/public/uploads
     depends_on:
       - db
 
@@ -32,3 +33,6 @@ services:
       - "3306:3306"
     volumes:
       - ./backend/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  uploads_data:

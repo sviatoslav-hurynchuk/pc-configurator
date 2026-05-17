@@ -14,6 +14,16 @@ abstract class BaseController {
 
         if (!isset($_SESSION['user_id'])) {
             $this->jsonResponse(['status' => 'error', 'message' => 'Необхідна авторизація'], 401);
+            exit;
+        }
+    }
+
+    protected function requireAdmin(): void {
+        $this->requireAuth();
+
+        if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+            $this->jsonResponse(['status' => 'error', 'message' => 'Доступ заборонено'], 403);
+            exit;
         }
     }
 }
