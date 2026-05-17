@@ -31,3 +31,9 @@ backend/.env
 # Якщо в майбутньому налаштуєш збереження даних БД у локальну папку:
 mysql_data/
 docker_data/
+
+# =========================
+# PHPUnit Cache
+# =========================
+backend/.phpunit.result.cache
+.phpunit.result.cache
