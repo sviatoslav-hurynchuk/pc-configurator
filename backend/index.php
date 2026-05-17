@@ -29,6 +29,7 @@ use App\Controllers\ComponentController;
 use App\Controllers\AuthController;
 use App\Core\Router;
 use App\Controllers\OrderController;
+use App\Controllers\PageController;
 
 $router = new Router();
 
@@ -48,6 +49,14 @@ $router->add('POST', '/api/orders', [$orderController, 'save']);
 $router->add('GET', '/api/orders', [$orderController, 'getUserHistory']);
 $router->add('POST', '/api/orders/status', [$orderController, 'updateStatus']);
 $router->add('GET', '/api/admin/orders', [$orderController, 'getAllOrders']);
+
+$pageController = new PageController();
+$router->add('GET', '/api/pages', [$pageController, 'index']);
+$router->add('GET', '/api/pages/([a-z0-9-]+)', [$pageController, 'show']);
+$router->add('GET', '/api/admin/pages', [$pageController, 'adminIndex']);
+$router->add('POST', '/api/admin/pages', [$pageController, 'store']);
+$router->add('POST', '/api/admin/pages/([0-9]+)', [$pageController, 'update']);
+$router->add('DELETE', '/api/admin/pages/([0-9]+)', [$pageController, 'delete']);
 
 $authController = new AuthController();
 $router->add('POST', '/api/register', [$authController, 'register']);

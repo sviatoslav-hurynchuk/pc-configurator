@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { fetchComponents, logoutUser, saveBuild } from '../services/api';
 import type { ComponentSpecs, PcComponent } from '../types';
 import { PC_CATEGORIES } from '../constants';
-import { BsEmojiFrown } from "react-icons/bs";
+import { BsEmojiFrown, BsNewspaper, BsShieldShaded, BsList } from "react-icons/bs";
 import { AuthContext } from '../context/AuthContext';
 import AuthModal from '../components/AuthModal';
 import OrderHistoryModal from "../components/OrderHistoryModal";
@@ -395,7 +395,17 @@ function ConfiguratorPage() {
                             fontWeight: 'bold', cursor: 'pointer',
                             display: 'flex', alignItems: 'center', gap: '8px'
                         }}>
-                        <span style={{fontSize: '18px'}}>☰</span> Каталог
+                        <BsList size={18} /> Каталог
+                    </button>
+                    <button
+                        onClick={() => navigate('/pages/about-us')}
+                        style={{
+                            padding: '8px 20px', borderRadius: '20px',
+                            backgroundColor: '#f1f1f1', color: '#333', border: 'none',
+                            fontWeight: 'bold', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: '8px'
+                        }}>
+                        <BsNewspaper size={18} /> Новини & Інфо
                     </button>
                 </div>
 
@@ -404,6 +414,19 @@ function ConfiguratorPage() {
                         user ? (
                             <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
                                 <span>Привіт, <strong>{user.name}</strong>!</span>
+                                {user.role === 'admin' && (
+                                    <button
+                                        onClick={() => navigate('/admin')}
+                                        style={{
+                                            padding: '8px 15px', borderRadius: '20px',
+                                            backgroundColor: '#475569', color: '#fff', border: 'none',
+                                            fontWeight: 'bold', cursor: 'pointer',
+                                            display: 'flex', alignItems: 'center', gap: '6px',
+                                        }}
+                                    >
+                                        <BsShieldShaded size={14} /> Панель адміна
+                                    </button>
+                                )}
                                 <button
                                     onClick={() => setIsOrderHistoryModalOpen(true)}
                                     style={{

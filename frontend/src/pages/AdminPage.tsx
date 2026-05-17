@@ -1,10 +1,11 @@
 import {type CSSProperties, type ReactNode, useEffect, useState} from 'react';
-import {fetchComponents, fetchOrders, deleteComponent} from '../services/api';
-import type {PcComponent} from '../types';
+import {fetchComponents, fetchOrders, deleteComponent, fetchAdminPages, deletePage} from '../services/api';
+import type {PcComponent, DynamicPage} from '../types';
 import {PC_CATEGORIES} from '../constants';
 import AddComponentModal from '../components/AddComponentModal';
+import AddPageModal from '../components/AddPageModal';
 
-import {BsBoxArrowLeft, BsBoxSeam, BsCart3, BsGrid1X2, BsPerson} from "react-icons/bs";
+import {BsBoxArrowLeft, BsBoxSeam, BsCart3, BsGrid1X2, BsPerson, BsFileText} from "react-icons/bs";
 
 interface AdminOrder {
     id: number;
@@ -18,10 +19,13 @@ interface AdminOrder {
 export default function AdminPage() {
     const [components, setComponents] = useState<PcComponent[]>([]);
     const [orders, setOrders] = useState<AdminOrder[]>([]);
+    const [pages, setPages] = useState<DynamicPage[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [activeTab, setActiveTab] = useState<'dashboard' | 'components' | 'orders'>('dashboard');
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'components' | 'orders' | 'pages'>('dashboard');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [editingComponent, setEditingComponent] = useState<PcComponent | null>(null);
+    const [isPageModalOpen, setIsPageModalOpen] = useState(false);
+    const [editingPage, setEditingPage] = useState<DynamicPage | null>(null);
 
     const handleComponentAdded = async () => {
         setIsAddModalOpen(false);
@@ -29,6 +33,32 @@ export default function AdminPage() {
         setLoading(true);
         const updatedComponents = await fetchComponents();
         setComponents(updatedComponents);
+        setLoading(false);
+    };
+
+    const handlePageSaved = async () => {
+        setIsPageModalOpen(false);
+        setEditingPage(null);
+        setLoading(true);
+        const res = await fetchAdminPages();
+        if (res.status === 'success' && Array.isArray(res.data)) {
+            setPages(res.data);
+        }
+        setLoading(false);
+    };
+
+    const handleDeletePage = async (id: number) => {
+        if (!confirm('Ви впевнені, що хочете видалити цю сторінку/новину?')) return;
+        setLoading(true);
+        const res = await deletePage(id);
+        if (res.status === 'success') {
+            const updated = await fetchAdminPages();
+            if (updated.status === 'success' && Array.isArray(updated.data)) {
+                setPages(updated.data);
+            }
+        } else {
+            alert(res.message || 'Помилка видалення');
+        }
         setLoading(false);
     };
 
@@ -47,9 +77,10 @@ export default function AdminPage() {
     useEffect(() => {
         const loadData = async () => {
             try {
-                const [componentsData, ordersData] = await Promise.all([
+                const [componentsData, ordersData, pagesData] = await Promise.all([
                     fetchComponents(),
-                    fetchOrders()
+                    fetchOrders(),
+                    fetchAdminPages()
                 ]);
                 setComponents(componentsData || []);
 
@@ -60,9 +91,16 @@ export default function AdminPage() {
                 } else {
                     setOrders([]);
                 }
+
+                if (pagesData && pagesData.status === 'success' && Array.isArray(pagesData.data)) {
+                    setPages(pagesData.data);
+                } else {
+                    setPages([]);
+                }
             } catch (error) {
                 console.error("Fetch error:", error);
                 setOrders([]);
+                setPages([]);
             } finally {
                 setLoading(false);
             }
@@ -144,6 +182,7 @@ export default function AdminPage() {
                     {renderSidebarItem('dashboard', 'Дашборд', <BsGrid1X2 size={20}/>)}
                     {renderSidebarItem('components', 'Комплектуючі', <BsBoxSeam size={20}/>)}
                     {renderSidebarItem('orders', 'Замовлення', <BsCart3 size={20}/>)}
+                    {renderSidebarItem('pages', 'Сторінки / Новини', <BsFileText size={20}/>)}
                 </div>
 
                 <div style={{padding: '20px 25px', borderTop: '1px solid #e2e8f0'}}>
@@ -343,12 +382,85 @@ export default function AdminPage() {
                         </div>
                     </>
                 )}
+
+                {activeTab === 'pages' && (
+                    <>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginBottom: '30px'
+                        }}>
+                            <h1 style={pageTitleStyle}>Управління сторінками та новинами</h1>
+                            <button onClick={() => { setEditingPage(null); setIsPageModalOpen(true); }}
+                                    style={btnPrimaryStyle}>+ Додати сторінку
+                            </button>
+                        </div>
+
+                        <div style={{...cardStyle, padding: 0, overflow: 'hidden'}}>
+                            {loading ? (
+                                <div style={{padding: '60px', textAlign: 'center', color: '#64748b'}}>Завантаження сторінок...</div>
+                            ) : (
+                                <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                                    <thead style={{backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0'}}>
+                                    <tr>
+                                        <th style={thStyle}>Заголовок</th>
+                                        <th style={thStyle}>Посилання</th>
+                                        <th style={thStyle}>Дата створення</th>
+                                        <th style={thStyle}>Статус</th>
+                                        <th style={{...thStyle, textAlign: 'right'}}>Дії</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {pages.map((page) => (
+                                        <tr key={page.id} style={{borderBottom: '1px solid #f1f5f9'}}>
+                                            <td style={{
+                                                ...tdStyle,
+                                                fontWeight: 'bold',
+                                                color: '#1e293b'
+                                            }}>{page.title}</td>
+                                            <td style={tdStyle}>
+                                                <code style={{backgroundColor: '#f1f5f9', padding: '4px 8px', borderRadius: '4px', fontSize: '12px'}}>/pages/{page.slug}</code>
+                                            </td>
+                                            <td style={tdStyle}>
+                                                {new Date(page.created_at).toLocaleDateString('uk-UA')}
+                                            </td>
+                                            <td style={tdStyle}>
+                                                <span style={page.is_published === 1 ? badgePublishedStyle : badgeDraftStyle}>
+                                                    {page.is_published === 1 ? 'Опубліковано' : 'Чернетка'}
+                                                </span>
+                                            </td>
+                                            <td style={{...tdStyle, textAlign: 'right', display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
+                                                <button style={btnEditStyle} onClick={() => { setEditingPage(page); setIsPageModalOpen(true); }}>Редагувати</button>
+                                                <button style={{...btnEditStyle, color: '#dc2626', backgroundColor: '#fef2f2'}} onClick={() => handleDeletePage(page.id)}>Видалити</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {pages.length === 0 && (
+                                        <tr>
+                                            <td colSpan={5} style={{padding: '40px', textAlign: 'center', color: '#64748b'}}>
+                                                Сторінок ще немає
+                                            </td>
+                                        </tr>
+                                    )}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                    </>
+                )}
             </div>
             <AddComponentModal
                 isOpen={isAddModalOpen}
                 onClose={() => { setIsAddModalOpen(false); setEditingComponent(null); }}
                 onSuccess={handleComponentAdded}
                 componentToEdit={editingComponent}
+            />
+            <AddPageModal
+                isOpen={isPageModalOpen}
+                onClose={() => { setIsPageModalOpen(false); setEditingPage(null); }}
+                onSuccess={handlePageSaved}
+                pageToEdit={editingPage}
             />
         </div>
     );
@@ -412,4 +524,14 @@ const badgeProcessingStyle: CSSProperties = {
 const badgeSavedStyle: CSSProperties = {
     ...badgeStyle,
     backgroundColor: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0'
+};
+
+const badgePublishedStyle: CSSProperties = {
+    ...badgeStyle,
+    backgroundColor: '#ecfdf5', color: '#047857', border: '1px solid #d1fae5'
+};
+
+const badgeDraftStyle: CSSProperties = {
+    ...badgeStyle,
+    backgroundColor: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0'
 };

@@ -96,3 +96,36 @@ export const uploadImage = async (file: File): Promise<{ status: string; url?: s
     });
     return response.json();
 };
+
+// ==========================================
+// PAGES & NEWS API
+// ==========================================
+export const fetchPages = async () => {
+    const response = await fetch(`${API_BASE_URL}/api/pages`, fetchOptions('GET'));
+    return response.json();
+};
+
+export const fetchPageBySlug = async (slug: string) => {
+    const response = await fetch(`${API_BASE_URL}/api/pages/${slug}`, fetchOptions('GET'));
+    return response.json();
+};
+
+export const fetchAdminPages = async () => {
+    const response = await fetch(`${API_BASE_URL}/api/admin/pages`, fetchOptions('GET'));
+    return response.json();
+};
+
+export const createPage = async (data: any) => {
+    const response = await fetch(`${API_BASE_URL}/api/admin/pages`, fetchOptions('POST', data));
+    return response.json();
+};
+
+export const updatePage = async (id: number, data: any) => {
+    const response = await fetch(`${API_BASE_URL}/api/admin/pages/${id}`, fetchOptions('POST', data));
+    return response.json();
+};
+
+export const deletePage = async (id: number) => {
+    const response = await fetch(`${API_BASE_URL}/api/admin/pages/${id}`, fetchOptions('DELETE'));
+    return response.json();
+};
