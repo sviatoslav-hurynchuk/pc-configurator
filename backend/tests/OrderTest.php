@@ -87,4 +87,32 @@ class OrderTest extends TestCase {
         $stillUpdated = $orderModel->getUserOrders($ownerId);
         $this->assertEquals('processing', $stillUpdated[0]['status'], "Сторонній не має змінити статус чужого замовлення");
     }
+
+    /**
+     * Перевіряє зміну статусу замовлення адміністратором (без перевірки user_id).
+     */
+    public function testAdminUpdateOrderStatus() {
+        $orderModel = new OrderModel();
+        $userModel  = new UserModel();
+        $componentModel = new ComponentModel();
+
+        $allComponents = $componentModel->getAll();
+        $this->assertGreaterThanOrEqual(1, count($allComponents), "В БД має бути мінімум 1 компонент для тесту");
+        $componentIds = [$allComponents[0]['id']];
+
+        $email = 'status_admin_owner_' . time() . '@test.com';
+        $userModel->create('Admin Owner', $email, 'pass123');
+        $owner = $userModel->findByEmail($email);
+        $ownerId = $owner['id'];
+
+        $orderModel->createOrder($ownerId, 1000.00, 'processing', $componentIds);
+        $orders = $orderModel->getUserOrders($ownerId);
+        $orderId = $orders[0]['id'];
+
+        $result = $orderModel->adminUpdateOrderStatus($orderId, 'accepted');
+        $this->assertTrue($result, "Адмін має мати змогу змінити статус будь-якого замовлення");
+
+        $updated = $orderModel->getUserOrders($ownerId);
+        $this->assertEquals('accepted', $updated[0]['status'], "Статус має оновитися до 'accepted'");
+    }
 }
