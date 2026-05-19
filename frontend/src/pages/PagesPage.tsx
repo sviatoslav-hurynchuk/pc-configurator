@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchPages, fetchPageBySlug } from '../services/api';
 import type { DynamicPage } from '../types';
-import { BsArrowLeft, BsCalendarEvent, BsJournalBookmarkFill } from 'react-icons/bs';
+import {BsCalendarEvent, BsJournalBookmarkFill } from 'react-icons/bs';
 
 function PagesPage() {
     const navigate = useNavigate();
@@ -79,34 +79,8 @@ function PagesPage() {
                 zIndex: 10
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                    <button 
-                        onClick={() => navigate('/')}
-                        style={{
-                            background: '#f1f5f9',
-                            border: '1px solid #cbd5e1',
-                            borderRadius: '50%',
-                            width: '40px',
-                            height: '40px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            color: '#475569',
-                            transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#e2e8f0';
-                            e.currentTarget.style.color = '#0f172a';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#f1f5f9';
-                            e.currentTarget.style.color = '#475569';
-                        }}
-                    >
-                        <BsArrowLeft size={18} />
-                    </button>
                     <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#1e293b', letterSpacing: '0.5px' }}>
-                        PC <span style={{ color: '#a5c926' }}>NEWS & INFO</span>
+                        PC NEWS & INFO
                     </div>
                 </div>
 
@@ -117,22 +91,12 @@ function PagesPage() {
                         backgroundColor: '#a5c926',
                         color: '#fff',
                         border: 'none',
-                        borderRadius: '25px',
+                        borderRadius: '20px',
                         fontWeight: 'bold',
-                        cursor: 'pointer',
-                        boxShadow: '0 4px 10px rgba(165, 201, 38, 0.2)',
-                        transition: 'transform 0.2s, box-shadow 0.2s'
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.boxShadow = '0 6px 15px rgba(165, 201, 38, 0.3)';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 4px 10px rgba(165, 201, 38, 0.2)';
+                        cursor: 'pointer'
                     }}
                 >
-                    Конфігуратор ПК
+                    Назад до Конфігуратора
                 </button>
             </div>
 
