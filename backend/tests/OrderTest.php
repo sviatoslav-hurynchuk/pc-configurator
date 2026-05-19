@@ -14,6 +14,7 @@ class OrderTest extends TestCase {
         $allComponents = $componentModel->getAll();
         $this->assertGreaterThanOrEqual(2, count($allComponents), "В БД має бути мінімум 2 компоненти для тесту");
         $componentIds = [$allComponents[0]['id'], $allComponents[1]['id']];
+        $totalPrice = (float)($allComponents[0]['price'] + $allComponents[1]['price']);
 
         $email = 'buyer_' . time() . '@test.com';
         $userModel->create('Test Buyer', $email, 'password123');
