@@ -12,10 +12,6 @@ class PageController extends BaseController {
         $this->pageModel = new PageModel();
     }
 
-    /**
-     * Get published pages.
-     * GET /api/pages
-     */
     public function index(): void {
         $pages = $this->pageModel->getPublished();
         $this->jsonResponse([
@@ -24,10 +20,6 @@ class PageController extends BaseController {
         ]);
     }
 
-    /**
-     * Get a page by slug.
-     * GET /api/pages/([a-z0-9-]+)
-     */
     public function show(string $slug): void {
         $page = $this->pageModel->findBySlug($slug);
 
@@ -50,10 +42,6 @@ class PageController extends BaseController {
         ]);
     }
 
-    /**
-     * Get all pages for admin.
-     * GET /api/admin/pages
-     */
     public function adminIndex(): void {
         $this->requireAdmin();
 
@@ -64,10 +52,6 @@ class PageController extends BaseController {
         ]);
     }
 
-    /**
-     * Create a new page.
-     * POST /api/admin/pages
-     */
     public function store(): void {
         $this->requireAdmin();
 
@@ -92,10 +76,6 @@ class PageController extends BaseController {
         }
     }
 
-    /**
-     * Update an existing page.
-     * POST /api/admin/pages/([0-9]+)
-     */
     public function update(string $id): void {
         $this->requireAdmin();
 
@@ -121,10 +101,6 @@ class PageController extends BaseController {
         }
     }
 
-    /**
-     * Delete page.
-     * DELETE /api/admin/pages/([0-9]+)
-     */
     public function delete(string $id): void {
         $this->requireAdmin();
 

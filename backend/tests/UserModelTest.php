@@ -4,10 +4,6 @@ use App\Models\UserModel;
 
 class UserModelTest extends TestCase {
 
-    /**
-     * Перевіряє пошук користувача за числовим ID.
-     * findById() повинен знаходити існуючого користувача та повертати null для неіснуючого.
-     */
     public function testFindById() {
         $userModel = new UserModel();
 
@@ -22,14 +18,9 @@ class UserModelTest extends TestCase {
         $this->assertEquals('FindById User', $userById['name']);
 
         $nonExistent = $userModel->findById(999999);
-        $this->assertNull($nonExistent, "findById має повертати null для неіснуючого ID");
+        $this->assertNull($nonExistent);
     }
 
-    /**
-     * Перевіряє масове видалення всіх remember-me токенів одного користувача.
-     * Необхідно для security-механізму: при виявленні крадіжки токена
-     * всі сесії користувача примусово завершуються.
-     */
     public function testDeleteAllTokensForUser() {
         $userModel = new UserModel();
 
@@ -38,7 +29,6 @@ class UserModelTest extends TestCase {
         $user = $userModel->findByEmail($email);
         $userId = $user['id'];
 
-        // Створюємо 2 окремих токени (імітація входу з двох пристроїв)
         $series1 = bin2hex(random_bytes(32));
         $series2 = bin2hex(random_bytes(32));
         $hash = hash('sha256', 'sometoken');
@@ -47,16 +37,13 @@ class UserModelTest extends TestCase {
         $userModel->createAuthToken($userId, $series1, $hash, $expires);
         $userModel->createAuthToken($userId, $series2, $hash, $expires);
 
-        // Переконуємося, що обидва токени існують
         $this->assertNotNull($userModel->getAuthTokenBySeries($series1));
         $this->assertNotNull($userModel->getAuthTokenBySeries($series2));
 
-        // Видаляємо всі токени користувача
         $result = $userModel->deleteAllTokensForUser($userId);
-        $this->assertTrue($result, "deleteAllTokensForUser має повертати true");
+        $this->assertTrue($result);
 
-        // Обидва токени мають бути видалені
-        $this->assertNull($userModel->getAuthTokenBySeries($series1), "Перший токен має бути видалений");
-        $this->assertNull($userModel->getAuthTokenBySeries($series2), "Другий токен має бути видалений");
+        $this->assertNull($userModel->getAuthTokenBySeries($series1));
+        $this->assertNull($userModel->getAuthTokenBySeries($series2));
     }
 }
