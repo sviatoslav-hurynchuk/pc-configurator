@@ -128,328 +128,329 @@ export default function AdminPage() {
             <div
                 onClick={() => setActiveTab(id)}
                 style={{
-                    padding: '16px 25px', cursor: 'pointer',
-                    backgroundColor: isActive ? '#f8fbfc' : 'transparent',
-                    borderRight: isActive ? '4px solid #a5c926' : '4px solid transparent',
-                    color: isActive ? '#333' : '#666',
-                    display: 'flex', alignItems: 'center', gap: '16px',
-                    fontWeight: isActive ? 'bold' : 'normal',
-                    transition: 'all 0.2s ease'
-                }}
-            >
-                <div style={{display: 'flex', alignItems: 'center', color: isActive ? '#a5c926' : '#999'}}>
-                    {icon}
+                    border: isActive ? '2px solid #a5c926' : '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    backgroundColor: isActive ? '#f4f9e9' : '#fff',
+                    overflow: 'hidden',
+                    transition: 'all 0.2s ease',
+                    boxShadow: isActive ? '0 0 10px rgba(165, 201, 38, 0.2)' : 'none'
+                }}>
+                <div style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '20px', backgroundColor: isActive ? '#f9f9f9' : 'transparent',
+                    cursor: 'pointer'
+                }}>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '15px', fontWeight: 'bold', color: '#333'}}>
+                        <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isActive ? '#a5c926' : '#666' }}>
+                            {icon}
+                        </div>
+                        <span>{label}</span>
+                    </div>
                 </div>
-                {label}
             </div>
         );
     };
 
     return (
-        <div style={{display: 'flex', height: '100vh', overflow: 'hidden', backgroundColor: '#f8fafc', fontFamily: 'Arial, sans-serif'}}>
+        <div style={{ backgroundColor: '#fafafa', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
+            <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '15px 40px',
+                backgroundColor: '#fff',
+                borderBottom: '1px solid #eee',
+                marginBottom: '20px'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
+                    <div style={{fontSize: '24px', fontWeight: 'bold', color: '#333'}}>ADMIN PANEL</div>
+                    <button
+                        onClick={() => window.location.href = '/'}
+                        style={{
+                            padding: '8px 20px', borderRadius: '20px',
+                            backgroundColor: '#f1f1f1', color: '#333', border: 'none',
+                            fontWeight: 'bold', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: '8px'
+                        }}>
+                        <BsBoxArrowLeft size={18} /> На сайт
+                    </button>
+                </div>
+
+                <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
+                    <div style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        backgroundColor: '#f4f9e9',
+                        border: '1px solid #dce8b0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#a5c926'
+                    }}>
+                        <BsPerson size={24}/>
+                    </div>
+                    <div style={{fontWeight: 'bold', color: '#333'}}>Адміністратор</div>
+                </div>
+            </div>
 
             <div style={{
-                width: '280px',
-                backgroundColor: '#fff',
-                borderRight: '1px solid #e2e8f0',
+                padding: '20px',
+                maxWidth: '1400px',
+                margin: '0 auto',
                 display: 'flex',
-                flexDirection: 'column'
+                gap: '30px',
+                alignItems: 'flex-start'
             }}>
-
-                <div style={{padding: '25px', backgroundColor: '#f4f9e9', borderBottom: '1px solid #e2e8f0'}}>
-                    <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
-                        <div style={{
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: '50%',
-                            backgroundColor: '#fff',
-                            border: '1px solid #dce8b0',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#a5c926'
-                        }}>
-                            <BsPerson size={24}/>
-                        </div>
-                        <div>
-                            <div style={{fontSize: '13px', color: '#64748b'}}>Панель керування</div>
-                            <div style={{fontWeight: 'bold', color: '#1e293b', fontSize: '15px'}}>Admin</div>
+                <div style={{
+                    flex: '3',
+                    position: 'sticky',
+                    top: '20px'
+                }}>
+                    <div style={{marginBottom: '40px'}}>
+                        <div style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
+                            {renderSidebarItem('dashboard', 'Дашборд', <BsGrid1X2 size={20}/>)}
+                            {renderSidebarItem('components', 'Комплектуючі', <BsBoxSeam size={20}/>)}
+                            {renderSidebarItem('orders', 'Замовлення', <BsCart3 size={20}/>)}
+                            {renderSidebarItem('pages', 'Сторінки / Новини', <BsFileText size={20}/>)}
                         </div>
                     </div>
                 </div>
 
-                <div style={{padding: '20px 0', flex: 1}}>
-                    {renderSidebarItem('dashboard', 'Дашборд', <BsGrid1X2 size={20}/>)}
-                    {renderSidebarItem('components', 'Комплектуючі', <BsBoxSeam size={20}/>)}
-                    {renderSidebarItem('orders', 'Замовлення', <BsCart3 size={20}/>)}
-                    {renderSidebarItem('pages', 'Сторінки / Новини', <BsFileText size={20}/>)}
-                </div>
+                <div style={{
+                    flex: '7',
+                    border: '1px solid #e0e0e0',
+                    padding: '30px',
+                    borderRadius: '8px',
+                    backgroundColor: '#fff',
+                    minHeight: '600px'
+                }}>
+                    {activeTab === 'dashboard' && (
+                        <>
+                            <h2 style={{color: '#666', marginBottom: '20px', fontSize: '24px'}}>
+                                Загальна статистика
+                            </h2>
 
-                <div style={{padding: '20px 25px', borderTop: '1px solid #e2e8f0'}}>
-                    <a href="/" style={{
-                        color: '#475569',
-                        textDecoration: 'none',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '15px',
-                        fontWeight: 'bold',
-                        transition: 'color 0.2s'
-                    }}>
-                        <BsBoxArrowLeft size={20} style={{color: '#94a3b8'}}/> Вийти на сайт
-                    </a>
-                </div>
-            </div>
-
-            <div style={{flex: 1, padding: '40px 60px', overflowY: 'auto'}}>
-
-                {activeTab === 'dashboard' && (
-                    <>
-                        <h1 style={pageTitleStyle}>Загальна статистика</h1>
-
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                            gap: '25px',
-                            marginBottom: '40px'
-                        }}>
-                            <div style={cardStyle}>
-                                <div style={cardLabelStyle}>Всього товарів</div>
-                                <div style={cardValueStyle}>{totalComponents}</div>
-                            </div>
-                            <div style={cardStyle}>
-                                <div style={cardLabelStyle}>Середня ціна</div>
-                                <div style={cardValueStyle}>{avgPrice} ₴</div>
-                            </div>
-                            <div style={cardStyle}>
-                                <div style={cardLabelStyle}>Всього замовлень</div>
-                                <div style={cardValueStyle}>{orders.length}</div>
-                            </div>
-                        </div>
-
-                        <h2 style={sectionTitleStyle}>Товарів за категоріями</h2>
-                        <div style={cardStyle}>
-                            {categoryStats.map(stat => (
-                                <div key={stat.name}
-                                     style={{display: 'flex', alignItems: 'center', marginBottom: '18px', gap: '20px'}}>
-                                    <div style={{
-                                        width: '180px',
-                                        fontSize: '14px',
-                                        color: '#475569',
-                                        fontWeight: '600'
-                                    }}>{stat.name}</div>
-                                    <div style={{
-                                        flex: 1,
-                                        height: '8px',
-                                        backgroundColor: '#f1f5f9',
-                                        borderRadius: '4px',
-                                        overflow: 'hidden'
-                                    }}>
-                                        <div style={{
-                                            width: `${(stat.count / totalComponents) * 100}%`,
-                                            height: '100%',
-                                            backgroundColor: '#a5c926',
-                                            borderRadius: '4px'
-                                        }}></div>
-                                    </div>
-                                    <div style={{
-                                        width: '40px',
-                                        fontSize: '15px',
-                                        textAlign: 'right',
-                                        fontWeight: 'bold',
-                                        color: '#1e293b'
-                                    }}>{stat.count}</div>
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                gap: '20px',
+                                marginBottom: '40px'
+                            }}>
+                                <div style={statCardStyle}>
+                                    <div style={statLabelStyle}>Всього товарів</div>
+                                    <div style={statValueStyle}>{totalComponents}</div>
                                 </div>
-                            ))}
-                        </div>
-                    </>
-                )}
+                                <div style={statCardStyle}>
+                                    <div style={statLabelStyle}>Середня ціна</div>
+                                    <div style={statValueStyle}>{avgPrice} ₴</div>
+                                </div>
+                                <div style={statCardStyle}>
+                                    <div style={statLabelStyle}>Всього замовлень</div>
+                                    <div style={statValueStyle}>{orders.length}</div>
+                                </div>
+                            </div>
 
-                {activeTab === 'components' && (
-                    <>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginBottom: '30px'
-                        }}>
-                            <h1 style={pageTitleStyle}>Управління комплектуючими</h1>
-                            <button onClick={() => { setEditingComponent(null); setIsAddModalOpen(true); }}
-                                    style={btnPrimaryStyle}>+ Додати деталь
-                            </button>
-                        </div>
+                            <h3 style={{color: '#666', marginBottom: '20px', fontSize: '20px'}}>
+                                Товари категоріями
+                            </h3>
+                            <div style={{
+                                padding: '20px', border: '1px solid #e0e0e0',
+                                borderRadius: '8px', backgroundColor: '#f9f9f9'
+                            }}>
+                                {categoryStats.map(stat => (
+                                    <div key={stat.name} style={{display: 'flex', alignItems: 'center', marginBottom: '15px', gap: '20px'}}>
+                                        <div style={{
+                                            width: '180px', fontSize: '14px', color: '#666', fontWeight: 'bold'
+                                        }}>{stat.name}</div>
+                                        <div style={{
+                                            flex: 1, height: '8px', backgroundColor: '#eee',
+                                            borderRadius: '4px', overflow: 'hidden'
+                                        }}>
+                                            <div style={{
+                                                width: `${(stat.count / totalComponents) * 100}%`,
+                                                height: '100%', backgroundColor: '#a5c926', borderRadius: '4px'
+                                            }}></div>
+                                        </div>
+                                        <div style={{
+                                            width: '40px', fontSize: '15px', textAlign: 'right',
+                                            fontWeight: 'bold', color: '#333'
+                                        }}>{stat.count}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
 
-                        <div style={{...cardStyle, padding: 0, overflow: 'hidden'}}>
-                            {loading ? (
-                                <div style={{padding: '60px', textAlign: 'center', color: '#64748b'}}>Завантаження
-                                    товарів...</div>
-                            ) : (
-                                <table style={{width: '100%', borderCollapse: 'collapse'}}>
-                                    <thead style={{backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0'}}>
-                                    <tr>
-                                        <th style={thStyle}>Назва</th>
-                                        <th style={thStyle}>Категорія</th>
-                                        <th style={thStyle}>Ціна</th>
-                                        <th style={{...thStyle, textAlign: 'right'}}>Дії</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {components.map((item) => (
-                                        <tr key={item.id} style={{borderBottom: '1px solid #f1f5f9'}}>
-                                            <td style={{
-                                                ...tdStyle,
-                                                fontWeight: 'bold',
-                                                color: '#1e293b'
-                                            }}>{item.name}</td>
-                                            <td style={tdStyle}>
-                                                <span style={badgeStyle}>{getCategoryName(item.category_id)}</span>
-                                            </td>
-                                            <td style={{...tdStyle, color: '#1e293b', fontWeight: 'bold'}}>
-                                                {parseFloat(item.price).toFixed(0)} ₴
-                                            </td>
-                                            <td style={{...tdStyle, textAlign: 'right', display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
-                                                <button style={btnEditStyle} onClick={() => { setEditingComponent(item); setIsAddModalOpen(true); }}>Редагувати</button>
-                                                <button style={{...btnEditStyle, color: '#dc2626', backgroundColor: '#fef2f2'}} onClick={() => handleDelete(item.id)}>Видалити</button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    </tbody>
-                                </table>
-                            )}
-                        </div>
-                    </>
-                )}
+                    {activeTab === 'components' && (
+                        <>
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+                                <h2 style={{color: '#666', margin: 0, fontSize: '24px'}}>
+                                    Управління комплектуючими
+                                </h2>
+                                <button onClick={() => { setEditingComponent(null); setIsAddModalOpen(true); }}
+                                        style={btnPrimaryStyle}>+ Додати деталь
+                                </button>
+                            </div>
 
-                {activeTab === 'orders' && (
-                    <>
-                        <h1 style={pageTitleStyle}>Замовлення клієнтів</h1>
-
-                        <div style={{...cardStyle, padding: 0, overflow: 'hidden'}}>
-                            {loading ? (
-                                <div style={{padding: '60px', textAlign: 'center', color: '#64748b'}}>Завантаження
-                                    замовлень...</div>
-                            ) : (
-                                <table style={{width: '100%', borderCollapse: 'collapse'}}>
-                                    <thead style={{backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0'}}>
-                                    <tr>
-                                        <th style={thStyle}>ID / Дата</th>
-                                        <th style={thStyle}>Клієнт</th>
-                                        <th style={thStyle}>Сума</th>
-                                        <th style={thStyle}>Статус</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {orders.map((order) => (
-                                        <tr key={order.id} style={{borderBottom: '1px solid #f1f5f9'}}>
-                                            <td style={tdStyle}>
-                                                <div style={{fontWeight: 'bold', color: '#1e293b'}}>#{order.id}</div>
-                                                <div style={{fontSize: '12px', color: '#64748b', marginTop: '4px'}}>
-                                                    {new Date(order.created_at).toLocaleDateString()}
-                                                </div>
-                                            </td>
-                                            <td style={tdStyle}>
-                                                <div style={{
-                                                    fontWeight: 'bold',
-                                                    color: '#1e293b'
-                                                }}>{order.user_name}</div>
-                                                <div style={{
-                                                    fontSize: '12px',
-                                                    color: '#64748b',
-                                                    marginTop: '4px'
-                                                }}>{order.user_email}</div>
-                                            </td>
-                                            <td style={{...tdStyle, color: '#1e293b', fontWeight: 'bold'}}>
-                                                {parseFloat(order.total_price).toFixed(0)} ₴
-                                            </td>
-                                            <td style={tdStyle}>
-                                                <span
-                                                    style={order.status === 'processing' ? badgeProcessingStyle : badgeSavedStyle}>
-                                                    {order.status === 'processing' ? 'В обробці' : 'Збережено'}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {orders.length === 0 && (
+                            <div style={{ border: '1px solid #e0e0e0', borderRadius: '8px', overflow: 'hidden' }}>
+                                {loading ? (
+                                    <div style={{padding: '40px', textAlign: 'center', color: '#666'}}>Завантаження товарів...</div>
+                                ) : (
+                                    <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                                        <thead style={{backgroundColor: '#f9f9f9', borderBottom: '1px solid #e0e0e0'}}>
                                         <tr>
-                                            <td colSpan={4}
-                                                style={{padding: '40px', textAlign: 'center', color: '#64748b'}}>
-                                                Замовлень ще немає
-                                            </td>
+                                            <th style={thStyle}>Назва</th>
+                                            <th style={thStyle}>Категорія</th>
+                                            <th style={thStyle}>Ціна</th>
+                                            <th style={{...thStyle, textAlign: 'right'}}>Дії</th>
                                         </tr>
-                                    )}
-                                    </tbody>
-                                </table>
-                            )}
-                        </div>
-                    </>
-                )}
+                                        </thead>
+                                        <tbody>
+                                        {components.map((item) => (
+                                            <tr key={item.id} style={{borderBottom: '1px solid #eee'}}>
+                                                <td style={{...tdStyle, fontWeight: 'bold', color: '#333'}}>{item.name}</td>
+                                                <td style={tdStyle}>
+                                                    <span style={badgeStyle}>{getCategoryName(item.category_id)}</span>
+                                                </td>
+                                                <td style={{...tdStyle, color: '#f1580c', fontWeight: 'bold'}}>
+                                                    {parseFloat(item.price).toFixed(0)} ₴
+                                                </td>
+                                                <td style={{...tdStyle, textAlign: 'right'}}>
+                                                    <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
+                                                        <button style={btnEditStyle} onClick={() => { setEditingComponent(item); setIsAddModalOpen(true); }}>Редагувати</button>
+                                                        <button style={{...btnEditStyle, color: '#e74c3c', border: '1px solid #fdf0ed', backgroundColor: '#fdf0ed'}} onClick={() => handleDelete(item.id)}>Видалити</button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+                        </>
+                    )}
 
-                {activeTab === 'pages' && (
-                    <>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginBottom: '30px'
-                        }}>
-                            <h1 style={pageTitleStyle}>Управління сторінками та новинами</h1>
-                            <button onClick={() => { setEditingPage(null); setIsPageModalOpen(true); }}
-                                    style={btnPrimaryStyle}>+ Додати сторінку
-                            </button>
-                        </div>
+                    {activeTab === 'orders' && (
+                        <>
+                            <h2 style={{color: '#666', marginBottom: '20px', fontSize: '24px'}}>
+                                Замовлення клієнтів
+                            </h2>
 
-                        <div style={{...cardStyle, padding: 0, overflow: 'hidden'}}>
-                            {loading ? (
-                                <div style={{padding: '60px', textAlign: 'center', color: '#64748b'}}>Завантаження сторінок...</div>
-                            ) : (
-                                <table style={{width: '100%', borderCollapse: 'collapse'}}>
-                                    <thead style={{backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0'}}>
-                                    <tr>
-                                        <th style={thStyle}>Заголовок</th>
-                                        <th style={thStyle}>Посилання</th>
-                                        <th style={thStyle}>Дата створення</th>
-                                        <th style={thStyle}>Статус</th>
-                                        <th style={{...thStyle, textAlign: 'right'}}>Дії</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {pages.map((page) => (
-                                        <tr key={page.id} style={{borderBottom: '1px solid #f1f5f9'}}>
-                                            <td style={{
-                                                ...tdStyle,
-                                                fontWeight: 'bold',
-                                                color: '#1e293b'
-                                            }}>{page.title}</td>
-                                            <td style={tdStyle}>
-                                                <code style={{backgroundColor: '#f1f5f9', padding: '4px 8px', borderRadius: '4px', fontSize: '12px'}}>/pages/{page.slug}</code>
-                                            </td>
-                                            <td style={tdStyle}>
-                                                {new Date(page.created_at).toLocaleDateString('uk-UA')}
-                                            </td>
-                                            <td style={tdStyle}>
-                                                <span style={page.is_published === 1 ? badgePublishedStyle : badgeDraftStyle}>
-                                                    {page.is_published === 1 ? 'Опубліковано' : 'Чернетка'}
-                                                </span>
-                                            </td>
-                                            <td style={{...tdStyle, textAlign: 'right', display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
-                                                <button style={btnEditStyle} onClick={() => { setEditingPage(page); setIsPageModalOpen(true); }}>Редагувати</button>
-                                                <button style={{...btnEditStyle, color: '#dc2626', backgroundColor: '#fef2f2'}} onClick={() => handleDeletePage(page.id)}>Видалити</button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {pages.length === 0 && (
+                            <div style={{ border: '1px solid #e0e0e0', borderRadius: '8px', overflow: 'hidden' }}>
+                                {loading ? (
+                                    <div style={{padding: '40px', textAlign: 'center', color: '#666'}}>Завантаження замовлень...</div>
+                                ) : (
+                                    <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                                        <thead style={{backgroundColor: '#f9f9f9', borderBottom: '1px solid #e0e0e0'}}>
                                         <tr>
-                                            <td colSpan={5} style={{padding: '40px', textAlign: 'center', color: '#64748b'}}>
-                                                Сторінок ще немає
-                                            </td>
+                                            <th style={thStyle}>ID / Дата</th>
+                                            <th style={thStyle}>Клієнт</th>
+                                            <th style={thStyle}>Сума</th>
+                                            <th style={thStyle}>Статус</th>
                                         </tr>
-                                    )}
-                                    </tbody>
-                                </table>
-                            )}
-                        </div>
-                    </>
-                )}
+                                        </thead>
+                                        <tbody>
+                                        {orders.map((order) => (
+                                            <tr key={order.id} style={{borderBottom: '1px solid #eee'}}>
+                                                <td style={tdStyle}>
+                                                    <div style={{fontWeight: 'bold', color: '#333'}}>#{order.id}</div>
+                                                    <div style={{fontSize: '12px', color: '#999', marginTop: '4px'}}>
+                                                        {new Date(order.created_at).toLocaleDateString()}
+                                                    </div>
+                                                </td>
+                                                <td style={tdStyle}>
+                                                    <div style={{fontWeight: 'bold', color: '#333'}}>{order.user_name}</div>
+                                                    <div style={{fontSize: '12px', color: '#999', marginTop: '4px'}}>{order.user_email}</div>
+                                                </td>
+                                                <td style={{...tdStyle, color: '#f1580c', fontWeight: 'bold'}}>
+                                                    {parseFloat(order.total_price).toFixed(0)} ₴
+                                                </td>
+                                                <td style={tdStyle}>
+                                                    <span style={order.status === 'processing' ? badgeProcessingStyle : badgeSavedStyle}>
+                                                        {order.status === 'processing' ? 'В обробці' : 'Збережено'}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {orders.length === 0 && (
+                                            <tr>
+                                                <td colSpan={4} style={{padding: '40px', textAlign: 'center', color: '#999'}}>
+                                                    Замовлень ще немає
+                                                </td>
+                                            </tr>
+                                        )}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+                        </>
+                    )}
+
+                    {activeTab === 'pages' && (
+                        <>
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+                                <h2 style={{color: '#666', margin: 0, fontSize: '24px'}}>
+                                    Управління сторінками
+                                </h2>
+                                <button onClick={() => { setEditingPage(null); setIsPageModalOpen(true); }}
+                                        style={btnPrimaryStyle}>+ Додати сторінку
+                                </button>
+                            </div>
+
+                            <div style={{ border: '1px solid #e0e0e0', borderRadius: '8px', overflow: 'hidden' }}>
+                                {loading ? (
+                                    <div style={{padding: '40px', textAlign: 'center', color: '#666'}}>Завантаження сторінок...</div>
+                                ) : (
+                                    <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                                        <thead style={{backgroundColor: '#f9f9f9', borderBottom: '1px solid #e0e0e0'}}>
+                                        <tr>
+                                            <th style={thStyle}>Заголовок</th>
+                                            <th style={thStyle}>Посилання</th>
+                                            <th style={thStyle}>Дата створення</th>
+                                            <th style={thStyle}>Статус</th>
+                                            <th style={{...thStyle, textAlign: 'right'}}>Дії</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {pages.map((page) => (
+                                            <tr key={page.id} style={{borderBottom: '1px solid #eee'}}>
+                                                <td style={{...tdStyle, fontWeight: 'bold', color: '#333'}}>{page.title}</td>
+                                                <td style={tdStyle}>
+                                                    <code style={{backgroundColor: '#f1f1f1', padding: '4px 8px', borderRadius: '4px', fontSize: '12px'}}>/pages/{page.slug}</code>
+                                                </td>
+                                                <td style={tdStyle}>
+                                                    {new Date(page.created_at).toLocaleDateString('uk-UA')}
+                                                </td>
+                                                <td style={tdStyle}>
+                                                    <span style={page.is_published === 1 ? badgePublishedStyle : badgeDraftStyle}>
+                                                        {page.is_published === 1 ? 'Опубліковано' : 'Чернетка'}
+                                                    </span>
+                                                </td>
+                                                <td style={{...tdStyle, textAlign: 'right'}}>
+                                                    <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
+                                                        <button style={btnEditStyle} onClick={() => { setEditingPage(page); setIsPageModalOpen(true); }}>Редагувати</button>
+                                                        <button style={{...btnEditStyle, color: '#e74c3c', border: '1px solid #fdf0ed', backgroundColor: '#fdf0ed'}} onClick={() => handleDeletePage(page.id)}>Видалити</button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {pages.length === 0 && (
+                                            <tr>
+                                                <td colSpan={5} style={{padding: '40px', textAlign: 'center', color: '#999'}}>
+                                                    Сторінок ще немає
+                                                </td>
+                                            </tr>
+                                        )}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
+
             <AddComponentModal
                 isOpen={isAddModalOpen}
                 onClose={() => { setIsAddModalOpen(false); setEditingComponent(null); }}
@@ -466,50 +467,35 @@ export default function AdminPage() {
     );
 }
 
-const pageTitleStyle: CSSProperties = {
-    margin: '0 0 30px 0',
-    fontSize: '28px',
-    color: '#1e293b',
-    fontWeight: 'bold',
-    letterSpacing: '-0.5px'
-};
-const sectionTitleStyle: CSSProperties = {margin: '0 0 20px 0', fontSize: '18px', color: '#1e293b', fontWeight: 'bold'};
-
-const cardStyle: CSSProperties = {
-    backgroundColor: '#fff',
-    padding: '30px',
-    border: '1px solid #e2e8f0',
-    borderRadius: '12px',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.03)'
+const statCardStyle: CSSProperties = {
+    padding: '20px', border: '1px solid #e0e0e0',
+    borderRadius: '8px', backgroundColor: '#f9f9f9'
 };
 
-const cardLabelStyle: CSSProperties = {
-    color: '#64748b',
-    fontSize: '14px',
-    marginBottom: '12px',
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px'
+const statLabelStyle: CSSProperties = {
+    color: '#666', fontSize: '14px', marginBottom: '10px'
 };
-const cardValueStyle: CSSProperties = {fontSize: '32px', fontWeight: 'bold', color: '#1e293b'};
+
+const statValueStyle: CSSProperties = {
+    fontWeight: 'bold', fontSize: '28px', color: '#333'
+};
 
 const btnPrimaryStyle: CSSProperties = {
-    padding: '12px 28px', backgroundColor: '#a5c926', color: '#fff',
+    padding: '10px 25px', backgroundColor: '#a5c926', color: '#fff',
     border: 'none', borderRadius: '30px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px',
-    boxShadow: '0 4px 10px rgba(165, 201, 38, 0.2)'
 };
 
 const btnEditStyle: CSSProperties = {
-    padding: '8px 20px', backgroundColor: '#f1f5f9', color: '#475569',
-    border: 'none', borderRadius: '20px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold',
-    transition: 'all 0.2s ease'
+    padding: '8px 15px', borderRadius: '20px',
+    border: '1px solid #ccc', background: '#fff', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold'
 };
 
 const thStyle: CSSProperties = {
-    padding: '16px 25px', textAlign: 'left' as const, color: '#64748b',
-    fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px'
+    padding: '15px 20px', textAlign: 'left', color: '#666',
+    fontSize: '14px', fontWeight: 'bold'
 };
-const tdStyle: CSSProperties = {padding: '20px 25px', fontSize: '14px'};
+const tdStyle: CSSProperties = {padding: '15px 20px', fontSize: '14px'};
+
 const badgeStyle: CSSProperties = {
     backgroundColor: '#f4f9e9', color: '#7a961a', padding: '6px 12px',
     borderRadius: '20px', fontSize: '12px', fontWeight: 'bold',
@@ -518,20 +504,20 @@ const badgeStyle: CSSProperties = {
 
 const badgeProcessingStyle: CSSProperties = {
     ...badgeStyle,
-    backgroundColor: '#fff7ed', color: '#c2410c', border: '1px solid #ffedd5'
+    backgroundColor: '#fdf0ed', color: '#e74c3c', border: '1px solid #fadbd8'
 };
 
 const badgeSavedStyle: CSSProperties = {
     ...badgeStyle,
-    backgroundColor: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0'
+    backgroundColor: '#f1f1f1', color: '#666', border: '1px solid #ccc'
 };
 
 const badgePublishedStyle: CSSProperties = {
     ...badgeStyle,
-    backgroundColor: '#ecfdf5', color: '#047857', border: '1px solid #d1fae5'
+    backgroundColor: '#e8f5e9', color: '#2e7d32', border: '1px solid #c8e6c9'
 };
 
 const badgeDraftStyle: CSSProperties = {
     ...badgeStyle,
-    backgroundColor: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0'
+    backgroundColor: '#f1f1f1', color: '#666', border: '1px solid #ccc'
 };
