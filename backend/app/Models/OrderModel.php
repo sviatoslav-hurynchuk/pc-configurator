@@ -63,6 +63,14 @@ class OrderModel extends BaseModel {
             'user_id' => $userId
         ]);
     }
+    public function adminUpdateOrderStatus(int $orderId, string $status): bool {
+        $stmt = $this->db->prepare("UPDATE orders SET status = :status WHERE id = :id");
+        return $stmt->execute([
+            'status' => $status,
+            'id' => $orderId
+        ]);
+    }
+
     public function getAllOrdersForAdmin() {
         $sql = "SELECT o.id, o.total_price, o.status, o.created_at, 
                        u.name as user_name, u.email as user_email

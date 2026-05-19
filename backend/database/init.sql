@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS components;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS auth_tokens;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS pages;
 
 SET FOREIGN_KEY_CHECKS = 1;
 CREATE TABLE IF NOT EXISTS users
@@ -77,6 +78,23 @@ CREATE TABLE IF NOT EXISTS order_items
     FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
     FOREIGN KEY (component_id) REFERENCES components (id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS pages
+(
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    title        VARCHAR(255)        NOT NULL,
+    content      TEXT                NOT NULL,
+    slug         VARCHAR(255) UNIQUE NOT NULL,
+    is_published BOOLEAN   DEFAULT TRUE,
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Seed Pages / News
+INSERT INTO pages (title, content, slug, is_published)
+VALUES 
+('Про нас', 'Ласкаво просимо до нашого Онлайн Конфігуратора ПК! Тут ви можете створити комп''ютер своєї мрії, перевірити сумісність деталей та замовити готову збірку. Наша місія - зробити процес підбору комплектуючих простим та приємним для кожного.', 'about-us', 1),
+('Новини: Вихід нового покоління процесорів', 'Сьогодні компанія Intel анонсувала нову лінійку процесорів Intel Core Ultra, які обіцяють приріст продуктивності до 20% та суттєве покращення енергоефективності. Вони вже скоро будуть доступні в нашому каталозі для конфігурації!', 'news-intel-ultra', 1),
+('Контакти', 'Зв''яжіться з нами для консультації:\nТелефон: +380 98 831 21 08\nEmail: support@pcbuilder.com\nАдреса: м. Житомир, вул. Чуднівська, 103', 'contacts', 1);
 
 -- Seed Categories
 INSERT INTO categories (id, name, slug)

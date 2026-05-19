@@ -3,6 +3,7 @@ import ConfiguratorPage from './pages/ConfiguratorPage';
 import AdminPage from './pages/AdminPage';
 import AdminRoute from './components/AdminRoute';
 import CatalogPage from './pages/CatalogPage';
+import PagesPage from './pages/PagesPage';
 
 function App() {
     return (
@@ -10,6 +11,8 @@ function App() {
             <Routes>
                 <Route path="/" element={<ConfiguratorPage />} />
                 <Route path="/catalog" element={<CatalogPage />} />
+                <Route path="/pages" element={<PagesPage />} />
+                <Route path="/pages/:slug" element={<PagesPage />} />
 
                 <Route path="/admin/*" element={
                     <AdminRoute>

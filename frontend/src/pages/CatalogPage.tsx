@@ -4,6 +4,7 @@ import { fetchComponents } from '../services/api';
 import type { PcComponent } from '../types';
 import { PC_CATEGORIES } from '../constants';
 import ComponentCard from '../components/ComponentCard';
+import { BsNewspaper } from 'react-icons/bs';
 
 function CatalogPage() {
     const navigate = useNavigate();
@@ -45,7 +46,19 @@ function CatalogPage() {
                 borderBottom: '1px solid #eee',
                 marginBottom: '20px'
             }}>
-                <div style={{fontSize: '24px', fontWeight: 'bold', color: '#333'}}>PC CATALOG</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
+                    <div style={{fontSize: '24px', fontWeight: 'bold', color: '#333'}}>PC CATALOG</div>
+                    <button
+                        onClick={() => navigate('/pages/about-us')}
+                        style={{
+                            padding: '8px 20px', borderRadius: '20px',
+                            backgroundColor: '#f1f1f1', color: '#333', border: 'none',
+                            fontWeight: 'bold', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: '8px'
+                        }}>
+                        <BsNewspaper size={18} /> Новини & Інфо
+                    </button>
+                </div>
 
                 <button
                     onClick={() => navigate('/')}

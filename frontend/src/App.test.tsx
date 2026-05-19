@@ -7,7 +7,6 @@ describe('Basic UI Test', () => {
         expect(1 + 1).toBe(2);
     });
 
-    // Приклад майбутнього тесту компонента:
     // it('renders the configurator title', () => {
     //     render(<App />);
     //     expect(screen.getByText(/PC Builder/i)).toBeDefined();
