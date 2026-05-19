@@ -20,7 +20,6 @@ function PagesPage() {
                 if (res.status === 'success' && Array.isArray(res.data)) {
                     setPages(res.data);
                     
-                    // Redirect to first page if no slug in URL
                     if (!slug && res.data.length > 0) {
                         navigate(`/pages/${res.data[0].slug}`);
                     }
@@ -66,7 +65,7 @@ function PagesPage() {
             fontFamily: "'Outfit', 'Inter', sans-serif",
             paddingBottom: '50px'
         }}>
-            {/* Header */}
+
             <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -100,7 +99,7 @@ function PagesPage() {
                 </button>
             </div>
 
-            {/* Content Body */}
+
             <div style={{
                 maxWidth: '1400px',
                 margin: '30px auto 0 auto',
@@ -111,7 +110,7 @@ function PagesPage() {
                 alignItems: 'start'
             }}>
                 
-                {/* Sidebar Navigation */}
+
                 <div style={{
                     background: '#fff',
                     border: '1px solid #e2e8f0',
@@ -205,7 +204,7 @@ function PagesPage() {
                     )}
                 </div>
 
-                {/* Main Article Container */}
+
                 <div style={{
                     background: '#fff',
                     border: '1px solid #e2e8f0',

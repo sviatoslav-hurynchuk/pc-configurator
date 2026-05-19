@@ -4,16 +4,12 @@ use App\Models\ComponentModel;
 
 class ComponentTest extends TestCase {
 
-    /**
-     * Перевіряє, що getAll() повертає масив і кожен елемент
-     * має обов'язкові поля: id, name, price, category_id.
-     */
     public function testGetAllReturnsValidStructure() {
         $model = new ComponentModel();
         $components = $model->getAll();
 
-        $this->assertIsArray($components, "getAll() має повертати масив");
-        $this->assertNotEmpty($components, "Каталог не має бути порожнім (seed-дані мають бути завантажені)");
+        $this->assertIsArray($components);
+        $this->assertNotEmpty($components);
 
         $first = $components[0];
         $this->assertArrayHasKey('id', $first);
@@ -22,14 +18,9 @@ class ComponentTest extends TestCase {
         $this->assertArrayHasKey('category_id', $first);
     }
 
-    /**
-     * Перевіряє повний CRUD-цикл компонента:
-     * createComponent → getAll (знайти) → updateComponent → deleteComponent.
-     */
     public function testCreateUpdateDeleteComponent() {
         $model = new ComponentModel();
 
-        // --- CREATE ---
         $uniqueName = 'Test Component ' . time();
         $data = [
             'category_id'      => 1,
@@ -41,18 +32,16 @@ class ComponentTest extends TestCase {
         ];
 
         $created = $model->createComponent($data);
-        $this->assertTrue($created, "createComponent() має повертати true при успіху");
+        $this->assertTrue($created);
 
-        // Знаходимо щойно створений компонент за унікальним іменем
         $all = $model->getAll();
         $found = array_filter($all, fn($c) => $c['name'] === $uniqueName);
-        $this->assertCount(1, $found, "Новий компонент має з'явитися в getAll()");
+        $this->assertCount(1, $found);
 
         $component = array_values($found)[0];
         $id = $component['id'];
-        $this->assertEquals(9999.99, $component['price'], "Ціна збереженого компонента має збігатися");
+        $this->assertEquals(9999.99, $component['price']);
 
-        // --- UPDATE ---
         $updatedData = [
             'category_id'      => 1,
             'name'             => $uniqueName . ' (updated)',
@@ -63,30 +52,23 @@ class ComponentTest extends TestCase {
         ];
 
         $updated = $model->updateComponent($id, $updatedData);
-        $this->assertTrue($updated, "updateComponent() має повертати true при успіху");
+        $this->assertTrue($updated);
 
-        // Перевіряємо, що дані оновились
         $afterUpdate = $model->getAll();
         $updatedFound = array_filter($afterUpdate, fn($c) => $c['id'] === $id);
         $this->assertCount(1, $updatedFound);
         $updatedComponent = array_values($updatedFound)[0];
-        $this->assertEquals($uniqueName . ' (updated)', $updatedComponent['name'], "Назва має оновитися");
-        $this->assertEquals(8888.00, $updatedComponent['price'], "Ціна має оновитися");
+        $this->assertEquals($uniqueName . ' (updated)', $updatedComponent['name']);
+        $this->assertEquals(8888.00, $updatedComponent['price']);
 
-        // --- DELETE ---
         $deleted = $model->deleteComponent($id);
-        $this->assertTrue($deleted, "deleteComponent() має повертати true при успіху");
+        $this->assertTrue($deleted);
 
-        // Переконуємося, що компонент зник з каталогу
         $afterDelete = $model->getAll();
         $stillExists = array_filter($afterDelete, fn($c) => $c['id'] === $id);
-        $this->assertCount(0, $stillExists, "Видалений компонент не має з'являтися в getAll()");
+        $this->assertCount(0, $stillExists);
     }
 
-    /**
-     * Перевіряє, що specs зберігаються як JSON і повертаються як масив.
-     * getAll() декодує specs_json автоматично.
-     */
     public function testSpecsAreDecodedAsArray() {
         $model = new ComponentModel();
 
@@ -104,16 +86,14 @@ class ComponentTest extends TestCase {
 
         $all = $model->getAll();
         $found = array_filter($all, fn($c) => $c['name'] === $data['name']);
-        $this->assertNotEmpty($found, "Компонент має бути знайдений");
+        $this->assertNotEmpty($found);
 
         $component = array_values($found)[0];
 
-        // specs має бути масивом (getAll() декодує JSON)
-        $this->assertIsArray($component['specs'], "specs мають бути декодовані як масив в getAll()");
+        $this->assertIsArray($component['specs']);
         $this->assertEquals('LGA1700', $component['specs']['socket']);
         $this->assertEquals(14, $component['specs']['cores']);
 
-        // Cleanup
         $model->deleteComponent($component['id']);
     }
 }

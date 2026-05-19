@@ -51,7 +51,6 @@ export default function AddPageModal({ isOpen, onClose, onSuccess, pageToEdit }:
 
     const handleTitleChange = (val: string) => {
         setTitle(val);
-        // Auto-generate slug for new pages only
         if (!pageToEdit) {
             setSlug(generateSlug(val));
         }
@@ -120,7 +119,7 @@ export default function AddPageModal({ isOpen, onClose, onSuccess, pageToEdit }:
                 flexDirection: 'column',
                 maxHeight: '90vh'
             }}>
-                {/* Header */}
+
                 <div style={{
                     padding: '20px 25px',
                     borderBottom: '1px solid #f1f5f9',
@@ -146,7 +145,7 @@ export default function AddPageModal({ isOpen, onClose, onSuccess, pageToEdit }:
                     </button>
                 </div>
 
-                {/* Form Content */}
+
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', flex: 1, padding: '25px' }}>
                     {error && (
                         <div style={{

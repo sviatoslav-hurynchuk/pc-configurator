@@ -149,7 +149,6 @@ function CatalogPage() {
                                     <ComponentCard 
                                         key={item.id} 
                                         item={item} 
-                                        // Not passing onAdd so the button is hidden
                                     />
                                 ))}
                             </div>

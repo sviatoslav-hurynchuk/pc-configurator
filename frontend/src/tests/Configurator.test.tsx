@@ -5,7 +5,6 @@ import { AuthContext } from '../context/AuthContext';
 import * as api from '../services/api';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-// Mock the API calls
 vi.mock('../services/api', () => ({
     fetchComponents: vi.fn(),
     logoutUser: vi.fn(),
@@ -24,8 +23,8 @@ const mockComponents = [
     },
     {
         id: 2,
-        name: 'NVIDIA RTX 4090', // High power draw
-        category_id: 3, // Відеокарта
+        name: 'NVIDIA RTX 4090',
+        category_id: 3,
         price: '70000.00',
         description: 'GPU',
         image_url: null,
@@ -35,7 +34,7 @@ const mockComponents = [
     {
         id: 3,
         name: 'ASUS B450 (AM4)',
-        category_id: 2, // Материнська плата
+        category_id: 2,
         price: '3000.00',
         description: 'Mobo',
         image_url: null,
@@ -44,7 +43,7 @@ const mockComponents = [
     {
         id: 4,
         name: 'Corsair 400W',
-        category_id: 10, // Блок живлення
+        category_id: 10,
         price: '1500.00',
         description: 'PSU',
         image_url: null,
@@ -55,8 +54,7 @@ const mockComponents = [
 describe('ConfiguratorPage', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        // @ts-ignore
-        api.fetchComponents.mockResolvedValue(mockComponents);
+        (api.fetchComponents as any).mockResolvedValue(mockComponents);
     });
 
     const renderWithContext = (ui: React.ReactNode, user = null) => {
@@ -102,22 +100,18 @@ describe('ConfiguratorPage', () => {
         renderWithContext(<ConfiguratorPage />);
         await waitFor(() => expect(screen.queryByText(/Завантаження\.\.\./i)).not.toBeInTheDocument());
 
-        // Select CPU (LGA1700)
         fireEvent.click(screen.getByText('Процесор'));
         let selectButtons = await screen.findAllByText('+ Обрати');
         fireEvent.click(selectButtons[0]);
 
-        // Select Motherboard (AM4)
         fireEvent.click(screen.getByText('Материнська плата'));
         selectButtons = await screen.findAllByText('+ Обрати');
         fireEvent.click(selectButtons[0]);
 
-        // Should show error message
         await waitFor(() => {
             expect(screen.getByText(/Процесор \(сокет LGA1700\) не підходить до материнської плати \(сокет AM4\)/i)).toBeInTheDocument();
         });
 
-        // The save button should be disabled
         const saveButton = screen.getByText('Зберегти збірку');
         expect(saveButton).toBeDisabled();
     });
@@ -126,27 +120,23 @@ describe('ConfiguratorPage', () => {
         renderWithContext(<ConfiguratorPage />);
         await waitFor(() => expect(screen.queryByText(/Завантаження\.\.\./i)).not.toBeInTheDocument());
 
-        // Select GPU (450W)
         fireEvent.click(screen.getByText('Відеокарта'));
         let selectButtons = await screen.findAllByText('+ Обрати');
         fireEvent.click(selectButtons[0]);
 
-        // Select PSU (400W)
         fireEvent.click(screen.getByText('Блок живлення'));
         selectButtons = await screen.findAllByText('+ Обрати');
         fireEvent.click(selectButtons[0]);
 
-        // Total wattage is 450W, PSU is 400W -> Error
         await waitFor(() => {
             expect(screen.getByText(/Блоку живлення на 400 Вт недостатньо/i)).toBeInTheDocument();
         });
     });
 
     it('opens auth modal if unauthenticated user tries to save a valid build', async () => {
-        renderWithContext(<ConfiguratorPage />, null); // User is null
+        renderWithContext(<ConfiguratorPage />, null);
         await waitFor(() => expect(screen.queryByText(/Завантаження\.\.\./i)).not.toBeInTheDocument());
 
-        // Select a component so the build is not empty
         fireEvent.click(screen.getByText('Процесор'));
         const selectButtons = await screen.findAllByText('+ Обрати');
         fireEvent.click(selectButtons[0]);
@@ -154,9 +144,8 @@ describe('ConfiguratorPage', () => {
         const saveButton = screen.getByText('Зберегти збірку');
         fireEvent.click(saveButton);
 
-        // Auth Modal should open (we look for "Вхід / Реєстрація" or similar text from the modal)
         await waitFor(() => {
-            expect(screen.getByText('Вхід')).toBeInTheDocument(); // assuming AuthModal has a "Вхід" title/tab
+            expect(screen.getByText('Вхід')).toBeInTheDocument();
         });
     });
 });

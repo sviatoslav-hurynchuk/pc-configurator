@@ -29,7 +29,6 @@ class Database {
         }
     }
 
-    // Singleton
     public static function getInstance(): Database {
         if (self::$instance === null) {
             self::$instance = new Database();
