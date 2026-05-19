@@ -62,11 +62,14 @@ export const updateOrderStatus = async (orderId: number, status: string) => {
     return response.json();
 };
 
-// ==========================================
-// ADMIN API
-// ==========================================
+
 export const fetchOrders = async () => {
     const response = await fetch(`${API_BASE_URL}/api/admin/orders`, fetchOptions('GET'));
+    return response.json();
+};
+
+export const updateAdminOrderStatus = async (orderId: number, status: string) => {
+    const response = await fetch(`${API_BASE_URL}/api/admin/orders/status`, fetchOptions('POST', { orderId, status }));
     return response.json();
 };
 
@@ -97,9 +100,7 @@ export const uploadImage = async (file: File): Promise<{ status: string; url?: s
     return response.json();
 };
 
-// ==========================================
-// PAGES & NEWS API
-// ==========================================
+
 export const fetchPages = async () => {
     const response = await fetch(`${API_BASE_URL}/api/pages`, fetchOptions('GET'));
     return response.json();

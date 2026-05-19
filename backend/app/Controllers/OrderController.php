@@ -64,6 +64,25 @@ class OrderController extends BaseController {
             $this->jsonResponse(['status' => 'error', 'message' => 'Помилка оформлення'], 500);
         }
     }
+    public function adminUpdateStatus(): void {
+        $this->requireAdmin();
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $orderId = $input['orderId'] ?? null;
+        $status = $input['status'] ?? 'processing';
+
+        if (!$orderId) {
+            $this->jsonResponse(['status' => 'error', 'message' => 'Не вказано ID замовлення'], 400);
+            return;
+        }
+
+        if ($this->orderModel->adminUpdateOrderStatus($orderId, $status)) {
+            $this->jsonResponse(['status' => 'success', 'message' => 'Статус оновлено']);
+        } else {
+            $this->jsonResponse(['status' => 'error', 'message' => 'Помилка оновлення статусу'], 500);
+        }
+    }
+
     public function getAllOrders(): void
     {
         $this->requireAdmin();

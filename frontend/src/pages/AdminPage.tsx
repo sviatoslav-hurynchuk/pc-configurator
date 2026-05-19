@@ -1,11 +1,11 @@
 import {type CSSProperties, type ReactNode, useEffect, useState} from 'react';
-import {fetchComponents, fetchOrders, deleteComponent, fetchAdminPages, deletePage} from '../services/api';
+import {fetchComponents, fetchOrders, deleteComponent, fetchAdminPages, deletePage, updateAdminOrderStatus} from '../services/api';
 import type {PcComponent, DynamicPage} from '../types';
 import {PC_CATEGORIES} from '../constants';
 import AddComponentModal from '../components/AddComponentModal';
 import AddPageModal from '../components/AddPageModal';
 
-import {BsBoxArrowLeft, BsBoxSeam, BsCart3, BsGrid1X2, BsPerson, BsFileText} from "react-icons/bs";
+import {BsBoxArrowLeft, BsBoxSeam, BsCart3, BsGrid1X2, BsPerson, BsFileText, BsCheck2, BsCheck2All} from "react-icons/bs";
 
 interface AdminOrder {
     id: number;
@@ -58,6 +58,24 @@ export default function AdminPage() {
             }
         } else {
             alert(res.message || 'Помилка видалення');
+        }
+        setLoading(false);
+    };
+
+    const handleStatusChange = async (orderId: number, newStatus: string) => {
+        setLoading(true);
+        const res = await updateAdminOrderStatus(orderId, newStatus);
+        if (res.status === 'success') {
+            const ordersData = await fetchOrders();
+            if (Array.isArray(ordersData)) {
+                setOrders(ordersData);
+            } else if (ordersData && ordersData.data && Array.isArray(ordersData.data)) {
+                setOrders(ordersData.data);
+            } else {
+                setOrders([]);
+            }
+        } else {
+            alert(res.message || 'Помилка оновлення статусу');
         }
         setLoading(false);
     };
@@ -367,9 +385,50 @@ export default function AdminPage() {
                                                     {parseFloat(order.total_price).toFixed(0)} ₴
                                                 </td>
                                                 <td style={tdStyle}>
-                                                    <span style={order.status === 'processing' ? badgeProcessingStyle : badgeSavedStyle}>
-                                                        {order.status === 'processing' ? 'В обробці' : 'Збережено'}
-                                                    </span>
+                                                    <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                                                        <span style={
+                                                            order.status === 'processing' ? badgeProcessingStyle :
+                                                            order.status === 'accepted' ? badgeAcceptedStyle :
+                                                            order.status === 'completed' ? badgePublishedStyle :
+                                                            badgeSavedStyle
+                                                        }>
+                                                            {order.status === 'processing' ? 'В обробці' :
+                                                             order.status === 'accepted' ? 'Прийнято' :
+                                                             order.status === 'completed' ? 'Виконано' :
+                                                             'Збережено'}
+                                                        </span>
+
+                                                        {order.status === 'processing' && (
+                                                            <button 
+                                                                onClick={() => handleStatusChange(order.id, 'accepted')}
+                                                                title="Прийняти замовлення"
+                                                                style={{
+                                                                    display: 'flex', alignItems: 'center', gap: '4px',
+                                                                    padding: '6px 12px', borderRadius: '20px', cursor: 'pointer',
+                                                                    border: 'none', backgroundColor: '#0284c7', color: '#fff',
+                                                                    fontSize: '11px', fontWeight: 'bold', transition: 'all 0.2s',
+                                                                    boxShadow: '0 2px 4px rgba(2, 132, 199, 0.2)'
+                                                                }}
+                                                            >
+                                                                Прийняти <BsCheck2 size={14}/>
+                                                            </button>
+                                                        )}
+                                                        {order.status === 'accepted' && (
+                                                            <button 
+                                                                onClick={() => handleStatusChange(order.id, 'completed')}
+                                                                title="Позначити як виконано"
+                                                                style={{
+                                                                    display: 'flex', alignItems: 'center', gap: '4px',
+                                                                    padding: '6px 12px', borderRadius: '20px', cursor: 'pointer',
+                                                                    border: 'none', backgroundColor: '#16a34a', color: '#fff',
+                                                                    fontSize: '11px', fontWeight: 'bold', transition: 'all 0.2s',
+                                                                    boxShadow: '0 2px 4px rgba(22, 163, 74, 0.2)'
+                                                                }}
+                                                            >
+                                                                Виконати <BsCheck2All size={14}/>
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
@@ -515,6 +574,11 @@ const badgeSavedStyle: CSSProperties = {
 const badgePublishedStyle: CSSProperties = {
     ...badgeStyle,
     backgroundColor: '#e8f5e9', color: '#2e7d32', border: '1px solid #c8e6c9'
+};
+
+const badgeAcceptedStyle: CSSProperties = {
+    ...badgeStyle,
+    backgroundColor: '#f0f9ff', color: '#0284c7', border: '1px solid #bae6fd'
 };
 
 const badgeDraftStyle: CSSProperties = {

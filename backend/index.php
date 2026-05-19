@@ -33,9 +33,7 @@ use App\Controllers\PageController;
 
 $router = new Router();
 
-// ==========================================
-// (ROUTES)
-// ==========================================
+
 
 $componentController = new ComponentController();
 $router->add('GET', '/api/components', [$componentController, 'index']);
@@ -49,6 +47,7 @@ $router->add('POST', '/api/orders', [$orderController, 'save']);
 $router->add('GET', '/api/orders', [$orderController, 'getUserHistory']);
 $router->add('POST', '/api/orders/status', [$orderController, 'updateStatus']);
 $router->add('GET', '/api/admin/orders', [$orderController, 'getAllOrders']);
+$router->add('POST', '/api/admin/orders/status', [$orderController, 'adminUpdateStatus']);
 
 $pageController = new PageController();
 $router->add('GET', '/api/pages', [$pageController, 'index']);
