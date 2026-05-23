@@ -3,6 +3,18 @@ import type {PcComponent} from '../types';
 
 const API_BASE_URL = 'http://localhost:8000';
 
+// Global fetch interceptor to handle session expiration (401 Unauthorized)
+if (typeof window !== 'undefined') {
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+        const response = await originalFetch(...args);
+        if (response.status === 401) {
+            window.dispatchEvent(new CustomEvent('auth-unauthorized'));
+        }
+        return response;
+    };
+}
+
 export interface User {
     id: number;
     name: string;
