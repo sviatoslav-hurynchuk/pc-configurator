@@ -4,6 +4,7 @@ import AdminPage from './pages/AdminPage';
 import AdminRoute from './components/AdminRoute';
 import CatalogPage from './pages/CatalogPage';
 import PagesPage from './pages/PagesPage';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
     return (
@@ -11,6 +12,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<ConfiguratorPage />} />
                 <Route path="/catalog" element={<CatalogPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/pages" element={<PagesPage />} />
                 <Route path="/pages/:slug" element={<PagesPage />} />
 

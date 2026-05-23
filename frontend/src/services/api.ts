@@ -130,3 +130,13 @@ export const deletePage = async (id: number) => {
     const response = await fetch(`${API_BASE_URL}/api/admin/pages/${id}`, fetchOptions('DELETE'));
     return response.json();
 };
+
+export const updateUserProfile = async (data: { name: string; email: string; password?: string }) => {
+    const response = await fetch(`${API_BASE_URL}/api/user/profile`, fetchOptions('PUT', data));
+    return response.json();
+};
+
+export const deleteUserAccount = async () => {
+    const response = await fetch(`${API_BASE_URL}/api/user/profile`, fetchOptions('DELETE'));
+    return response.json();
+};

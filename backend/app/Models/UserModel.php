@@ -70,4 +70,29 @@ class UserModel extends BaseModel {
         $stmt = $this->db->prepare("DELETE FROM auth_tokens WHERE series = :series");
         return $stmt->execute(['series' => $series]);
     }
+
+    public function updateUser(int $id, string $name, string $email, ?string $password): bool {
+        if ($password !== null && $password !== '') {
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $this->db->prepare("UPDATE users SET name = :name, email = :email, password_hash = :password_hash WHERE id = :id");
+            return $stmt->execute([
+                'name' => $name,
+                'email' => $email,
+                'password_hash' => $hash,
+                'id' => $id
+            ]);
+        } else {
+            $stmt = $this->db->prepare("UPDATE users SET name = :name, email = :email WHERE id = :id");
+            return $stmt->execute([
+                'name' => $name,
+                'email' => $email,
+                'id' => $id
+            ]);
+        }
+    }
+
+    public function deleteUser(int $id): bool {
+        $stmt = $this->db->prepare("DELETE FROM users WHERE id = :id");
+        return $stmt->execute(['id' => $id]);
+    }
 }

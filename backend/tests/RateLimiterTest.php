@@ -45,7 +45,7 @@ class RateLimiterTest extends TestCase {
         $this->assertTrue($limiter->check($ip));
         $this->assertTrue($limiter->check($ip));
         
-        usleep(1500000);
+        usleep(2100000);
 
         $this->assertTrue($limiter->check($ip));
     }

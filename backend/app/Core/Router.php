@@ -24,7 +24,7 @@ class Router {
             foreach ($this->routes as $route) {
                 $pattern = '#^' . $route['path'] . '$#';
                 if ($route['method'] === $method && preg_match($pattern, $path, $matches)) {
-                    array_shift($matches); // remove the full match
+                    array_shift($matches);
 
                     call_user_func_array($route['callback'], $matches);
 
@@ -34,7 +34,6 @@ class Router {
                 }
             }
 
-            // Path not found
             ob_clean();
             http_response_code(404);
             $isApi = (strpos($path, '/api/') === 0);

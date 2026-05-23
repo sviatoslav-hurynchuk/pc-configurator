@@ -82,6 +82,8 @@ $router->add('POST', '/api/register', [$authController, 'register']);
 $router->add('POST', '/api/login', [$authController, 'login']);
 $router->add('POST', '/api/logout', [$authController, 'logout']);
 $router->add('GET', '/api/me', [$authController, 'me']);
+$router->add('PUT', '/api/user/profile', [$authController, 'updateProfile']);
+$router->add('DELETE', '/api/user/profile', [$authController, 'deleteAccount']);
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $router->dispatch($_SERVER['REQUEST_METHOD'], $uri);
