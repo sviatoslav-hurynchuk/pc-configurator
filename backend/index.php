@@ -25,6 +25,19 @@ spl_autoload_register(function ($class) {
     }
 });
 
+// Rate Limiting
+$rateLimiter = new \App\Core\RateLimiter(null, 60, 60);
+$clientIp = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+if (!$rateLimiter->check($clientIp)) {
+    http_response_code(429);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Занадто багато запитів. Спробуйте пізніше. (Rate Limit Exceeded)'
+    ], JSON_UNESCAPED_UNICODE);
+    exit(0);
+}
+
 use App\Controllers\ComponentController;
 use App\Controllers\AuthController;
 use App\Core\Router;
