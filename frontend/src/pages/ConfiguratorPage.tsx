@@ -428,6 +428,15 @@ function ConfiguratorPage() {
                                     </button>
                                 )}
                                 <button
+                                    onClick={() => navigate('/profile')}
+                                    style={{
+                                        padding: '8px 15px', borderRadius: '20px',
+                                        backgroundColor: '#f1f1f1', color: '#333', border: 'none',
+                                        fontWeight: 'bold', cursor: 'pointer'
+                                    }}>
+                                    Профіль
+                                </button>
+                                <button
                                     onClick={() => setIsOrderHistoryModalOpen(true)}
                                     style={{
                                         padding: '8px 15px', borderRadius: '20px',

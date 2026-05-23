@@ -46,4 +46,45 @@ class UserModelTest extends TestCase {
         $this->assertNull($userModel->getAuthTokenBySeries($series1));
         $this->assertNull($userModel->getAuthTokenBySeries($series2));
     }
+
+    public function testUpdateUser() {
+        $userModel = new UserModel();
+
+        $email = 'update_' . time() . '@example.com';
+        $userModel->create('Original User', $email, 'pass123');
+        $user = $userModel->findByEmail($email);
+        $userId = $user['id'];
+
+        $newEmail = 'updated_' . time() . '@example.com';
+        $result = $userModel->updateUser($userId, 'Updated User', $newEmail, null);
+        $this->assertTrue($result);
+
+        $updatedUser = $userModel->findById($userId);
+        $this->assertEquals('Updated User', $updatedUser['name']);
+        $this->assertEquals($newEmail, $updatedUser['email']);
+        $this->assertTrue(password_verify('pass123', $updatedUser['password_hash']));
+
+        $resultWithPass = $userModel->updateUser($userId, 'Updated User 2', $newEmail, 'newsecurepass');
+        $this->assertTrue($resultWithPass);
+
+        $updatedUser2 = $userModel->findById($userId);
+        $this->assertEquals('Updated User 2', $updatedUser2['name']);
+        $this->assertTrue(password_verify('newsecurepass', $updatedUser2['password_hash']));
+    }
+
+    public function testDeleteUser() {
+        $userModel = new UserModel();
+
+        $email = 'delete_' . time() . '@example.com';
+        $userModel->create('Delete User', $email, 'pass123');
+        $user = $userModel->findByEmail($email);
+        $userId = $user['id'];
+
+        $this->assertNotNull($userModel->findById($userId));
+
+        $result = $userModel->deleteUser($userId);
+        $this->assertTrue($result);
+
+        $this->assertNull($userModel->findById($userId));
+    }
 }

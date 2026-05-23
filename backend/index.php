@@ -1,5 +1,8 @@
 <?php
 session_start();
+require_once __DIR__ . '/app/Core/ErrorHandler.php';
+\App\Core\ErrorHandler::register();
+
 header('Access-Control-Allow-Origin: http://localhost:5173');
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
@@ -24,6 +27,23 @@ spl_autoload_register(function ($class) {
         require $file;
     }
 });
+
+// Redirects
+$redirectManager = new \App\Core\RedirectManager();
+$redirectManager->handle($_SERVER['REQUEST_URI'] ?? '/');
+
+// Rate Limiting
+$rateLimiter = new \App\Core\RateLimiter(null, 60, 60);
+$clientIp = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+if (!$rateLimiter->check($clientIp)) {
+    http_response_code(429);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Занадто багато запитів. Спробуйте пізніше. (Rate Limit Exceeded)'
+    ], JSON_UNESCAPED_UNICODE);
+    exit(0);
+}
 
 use App\Controllers\ComponentController;
 use App\Controllers\AuthController;
@@ -62,6 +82,8 @@ $router->add('POST', '/api/register', [$authController, 'register']);
 $router->add('POST', '/api/login', [$authController, 'login']);
 $router->add('POST', '/api/logout', [$authController, 'logout']);
 $router->add('GET', '/api/me', [$authController, 'me']);
+$router->add('PUT', '/api/user/profile', [$authController, 'updateProfile']);
+$router->add('DELETE', '/api/user/profile', [$authController, 'deleteAccount']);
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $router->dispatch($_SERVER['REQUEST_METHOD'], $uri);
