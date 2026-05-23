@@ -1,5 +1,12 @@
 <?php
-session_start();
+session_set_cookie_params([
+    'lifetime' => 86400,
+    'path' => '/',
+    'domain' => '',
+    'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
 require_once __DIR__ . '/app/Core/ErrorHandler.php';
 \App\Core\ErrorHandler::register();
 

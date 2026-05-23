@@ -34,6 +34,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         verifyUser();
     }, []);
 
+    useEffect(() => {
+        const handleUnauthorized = () => {
+            setUser(null);
+        };
+        window.addEventListener('auth-unauthorized', handleUnauthorized);
+        return () => {
+            window.removeEventListener('auth-unauthorized', handleUnauthorized);
+        };
+    }, []);
+
     return (
         <AuthContext.Provider value={{ user, setUser, loading }}>
             {children}

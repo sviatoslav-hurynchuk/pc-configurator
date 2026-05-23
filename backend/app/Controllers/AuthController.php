@@ -13,14 +13,6 @@ class AuthController extends BaseController {
 
 
         if (session_status() === PHP_SESSION_NONE) {
-            session_set_cookie_params([
-                'lifetime' => 86400,
-                'path' => '/',
-                'domain' => 'localhost',
-                'secure' => false,
-                'httponly' => true,
-                'samesite' => 'Lax'
-            ]);
             session_start();
         }
     }
@@ -80,7 +72,14 @@ class AuthController extends BaseController {
                 $this->userModel->createAuthToken($user['id'], $series, hash('sha256', $token), $expires);
 
                 $cookieValue = $series . '|' . $token;
-                setcookie('remember_token', $cookieValue, time() + (86400 * 30), "/", "", false, true);
+                setcookie('remember_token', $cookieValue, [
+                    'expires' => time() + (86400 * 30),
+                    'path' => '/',
+                    'domain' => '',
+                    'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+                    'httponly' => true,
+                    'samesite' => 'Lax'
+                ]);
             }
 
             $this->jsonResponse(['status' => 'success', 'message' => 'Успішний вхід', 'user' => $this->getSafeUserData($user)]);
@@ -93,7 +92,14 @@ class AuthController extends BaseController {
         if (isset($_COOKIE['remember_token'])) {
             $parts = explode('|', $_COOKIE['remember_token']);
             $this->userModel->deleteTokenBySeries($parts[0]);
-            setcookie('remember_token', '', time() - 3600, '/');
+            setcookie('remember_token', '', [
+                'expires' => time() - 3600,
+                'path' => '/',
+                'domain' => '',
+                'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]);
         }
         session_unset();
         session_destroy();
@@ -101,6 +107,9 @@ class AuthController extends BaseController {
     }
 
     public function me(): void {
+        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+        header("Pragma: no-cache");
+
         if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
             $parts = explode('|', $_COOKIE['remember_token']);
             if (count($parts) === 2) {
@@ -115,7 +124,14 @@ class AuthController extends BaseController {
                         $newExpires = date('Y-m-d H:i:s', time() + (86400 * 30));
                         $this->userModel->updateAuthToken($series, hash('sha256', $newToken), $newExpires);
 
-                        setcookie('remember_token', $series . '|' . $newToken, time() + (86400 * 30), "/", "", false, true);
+                        setcookie('remember_token', $series . '|' . $newToken, [
+                            'expires' => time() + (86400 * 30),
+                            'path' => '/',
+                            'domain' => '',
+                            'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+                            'httponly' => true,
+                            'samesite' => 'Lax'
+                        ]);
 
                         $user = $this->userModel->findById($storedToken['user_id']);
                         if ($user) {
@@ -123,7 +139,14 @@ class AuthController extends BaseController {
                         }
                     } else {
                         $this->userModel->deleteAllTokensForUser($storedToken['user_id']);
-                        setcookie('remember_token', '', time() - 3600, '/');
+                        setcookie('remember_token', '', [
+                            'expires' => time() - 3600,
+                            'path' => '/',
+                            'domain' => '',
+                            'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+                            'httponly' => true,
+                            'samesite' => 'Lax'
+                        ]);
                         $this->jsonResponse(['status' => 'error', 'message' => 'Security alert: dynamic token mismatch!'], 403);
                         return;
                     }
@@ -217,7 +240,14 @@ class AuthController extends BaseController {
             if (isset($_COOKIE['remember_token'])) {
                 $parts = explode('|', $_COOKIE['remember_token']);
                 $this->userModel->deleteTokenBySeries($parts[0]);
-                setcookie('remember_token', '', time() - 3600, '/');
+                setcookie('remember_token', '', [
+                    'expires' => time() - 3600,
+                    'path' => '/',
+                    'domain' => '',
+                    'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+                    'httponly' => true,
+                    'samesite' => 'Lax'
+                ]);
             }
             session_unset();
             session_destroy();

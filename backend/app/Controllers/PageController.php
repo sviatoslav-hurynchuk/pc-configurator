@@ -30,6 +30,9 @@ class PageController extends BaseController {
 
         // Check if draft access is requested by non-admin
         if (!$page['is_published']) {
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
             if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
                 $this->jsonResponse(['status' => 'error', 'message' => 'Доступ обмежено. Сторінка знаходиться у чернетках.'], 403);
                 return;
