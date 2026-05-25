@@ -113,10 +113,9 @@ function PagesPage() {
 
                 <div style={{
                     background: '#fff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '16px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
                     padding: '20px',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
                     position: 'sticky',
                     top: '100px'
                 }}>
@@ -137,7 +136,7 @@ function PagesPage() {
                     {loadingList ? (
                         <div style={{ textAlign: 'center', padding: '20px', color: '#64748b' }}>Завантаження...</div>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                             {pages.map((p) => {
                                 const isActive = p.slug === slug;
                                 const isNews = p.slug.startsWith('news-');
@@ -147,55 +146,71 @@ function PagesPage() {
                                         key={p.id}
                                         onClick={() => navigate(`/pages/${p.slug}`)}
                                         style={{
-                                            padding: '14px 18px',
-                                            borderRadius: '10px',
-                                            cursor: 'pointer',
+                                            border: isActive ? '2px solid #a5c926' : '1px solid #e0e0e0',
+                                            borderRadius: '8px',
+                                            backgroundColor: isActive ? '#f4f9e9' : '#fff',
+                                            overflow: 'hidden',
                                             transition: 'all 0.2s ease',
-                                            background: isActive ? '#f4f9e9' : '#fff',
-                                            border: isActive ? '1px solid #dce8b0' : '1px solid #e2e8f0',
+                                            boxShadow: isActive ? '0 0 10px rgba(165, 201, 38, 0.2)' : 'none',
+                                            cursor: 'pointer',
                                         }}
                                         onMouseEnter={(e) => {
                                             if (!isActive) {
-                                                e.currentTarget.style.background = '#f8fafc';
-                                                e.currentTarget.style.transform = 'translateX(5px)';
+                                                e.currentTarget.style.border = '1px solid #c8d8a0';
+                                                e.currentTarget.style.backgroundColor = '#f9f9f9';
                                             }
                                         }}
                                         onMouseLeave={(e) => {
                                             if (!isActive) {
-                                                e.currentTarget.style.background = '#fff';
-                                                e.currentTarget.style.transform = 'translateX(0)';
+                                                e.currentTarget.style.border = '1px solid #e0e0e0';
+                                                e.currentTarget.style.backgroundColor = '#fff';
                                             }
                                         }}
                                     >
                                         <div style={{
-                                            fontWeight: 'bold',
-                                            color: isActive ? '#7a961a' : '#1e293b',
-                                            fontSize: '14px',
-                                            marginBottom: '6px',
-                                            lineHeight: '1.4'
-                                        }}>{p.title}</div>
-                                        
-                                        <div style={{
                                             display: 'flex',
+                                            justifyContent: 'space-between',
                                             alignItems: 'center',
-                                            gap: '6px',
-                                            fontSize: '11px',
-                                            color: '#64748b'
+                                            padding: '20px',
+                                            backgroundColor: isActive ? '#f9f9f9' : 'transparent',
                                         }}>
-                                            <BsCalendarEvent size={12} />
-                                            <span>{new Date(p.created_at).toLocaleDateString('uk-UA')}</span>
-                                            <span style={{
-                                                backgroundColor: isNews ? '#eff6ff' : '#f0fdf4',
-                                                color: isNews ? '#2563eb' : '#16a34a',
-                                                border: isNews ? '1px solid #dbeafe' : '1px solid #dcfce7',
-                                                padding: '2px 8px',
-                                                borderRadius: '20px',
-                                                fontSize: '9px',
-                                                fontWeight: 'bold',
-                                                marginLeft: 'auto'
+                                            <div style={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: '6px',
+                                                flex: 1,
+                                                minWidth: 0
                                             }}>
-                                                {isNews ? 'Новина' : 'Інфо'}
-                                            </span>
+                                                <div style={{
+                                                    fontWeight: 'bold',
+                                                    color: isActive ? '#7a961a' : '#333',
+                                                    fontSize: '14px',
+                                                    lineHeight: '1.4'
+                                                }}>{p.title}</div>
+
+                                                <div style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '6px',
+                                                    fontSize: '11px',
+                                                    color: '#64748b'
+                                                }}>
+                                                    <BsCalendarEvent size={12} />
+                                                    <span>{new Date(p.created_at).toLocaleDateString('uk-UA')}</span>
+                                                    <span style={{
+                                                        backgroundColor: isNews ? '#eff6ff' : '#f0fdf4',
+                                                        color: isNews ? '#2563eb' : '#16a34a',
+                                                        border: isNews ? '1px solid #dbeafe' : '1px solid #dcfce7',
+                                                        padding: '2px 8px',
+                                                        borderRadius: '20px',
+                                                        fontSize: '9px',
+                                                        fontWeight: 'bold',
+                                                        marginLeft: 'auto'
+                                                    }}>
+                                                        {isNews ? 'Новина' : 'Інфо'}
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 );

@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { updateUserProfile, deleteUserAccount, logoutUser } from '../services/api';
 import { BsList, BsNewspaper, BsShieldShaded } from 'react-icons/bs';
+import { useToast, ToastContainer } from '../components/Toast';
 
 function ProfilePage() {
     const navigate = useNavigate();
     const { user, setUser, loading: authLoading } = useContext(AuthContext);
+    const { toasts, showToast, removeToast } = useToast();
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -82,7 +84,7 @@ function ProfilePage() {
             const data = await deleteUserAccount();
             if (data.status === 'success') {
                 setUser(null);
-                alert('Ваш акаунт успішно видалено.');
+                showToast('Ваш акаунт успішно видалено.', 'success');
                 navigate('/');
             } else {
                 setError(data.message || 'Помилка видалення акаунта');
@@ -105,6 +107,7 @@ function ProfilePage() {
     }
 
     return (
+        <>
         <div style={{ backgroundColor: '#f9f9f9', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
             <div style={{
                 display: 'flex',
@@ -145,6 +148,20 @@ function ProfilePage() {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <button
+                        onClick={() => navigate('/')}
+                        style={{
+                            padding: '10px 25px',
+                            backgroundColor: '#a5c926',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '20px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Назад до Конфігуратора
+                    </button>
                     <span>Привіт, <strong>{user.name}</strong>!</span>
                     {user.role === 'admin' && (
                         <button
@@ -358,6 +375,8 @@ function ProfilePage() {
                 )}
             </div>
         </div>
+        <ToastContainer toasts={toasts} onRemove={removeToast} />
+        </>
     );
 }
 

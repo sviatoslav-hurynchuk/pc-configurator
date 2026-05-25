@@ -4,8 +4,9 @@ import type {PcComponent, DynamicPage} from '../types';
 import {PC_CATEGORIES} from '../constants';
 import AddComponentModal from '../components/AddComponentModal';
 import AddPageModal from '../components/AddPageModal';
-
+import { useToast, ToastContainer } from '../components/Toast';
 import {BsBoxArrowLeft, BsBoxSeam, BsCart3, BsGrid1X2, BsPerson, BsFileText, BsCheck2, BsCheck2All} from "react-icons/bs";
+
 
 interface AdminOrder {
     id: number;
@@ -17,6 +18,7 @@ interface AdminOrder {
 }
 
 export default function AdminPage() {
+    const { toasts, showToast, removeToast } = useToast();
     const [components, setComponents] = useState<PcComponent[]>([]);
     const [orders, setOrders] = useState<AdminOrder[]>([]);
     const [pages, setPages] = useState<DynamicPage[]>([]);
@@ -57,7 +59,7 @@ export default function AdminPage() {
                 setPages(updated.data);
             }
         } else {
-            alert(res.message || 'Помилка видалення');
+            showToast(res.message || 'Помилка видалення', 'error');
         }
         setLoading(false);
     };
@@ -75,7 +77,7 @@ export default function AdminPage() {
                 setOrders([]);
             }
         } else {
-            alert(res.message || 'Помилка оновлення статусу');
+            showToast(res.message || 'Помилка оновлення статусу', 'error');
         }
         setLoading(false);
     };
@@ -88,7 +90,7 @@ export default function AdminPage() {
             const updatedComponents = await fetchComponents();
             setComponents(updatedComponents);
         } else {
-            alert(res.message || 'Помилка видалення');
+            showToast(res.message || 'Помилка видалення', 'error');
         }
         setLoading(false);
     };
@@ -522,6 +524,7 @@ export default function AdminPage() {
                 onSuccess={handlePageSaved}
                 pageToEdit={editingPage}
             />
+            <ToastContainer toasts={toasts} onRemove={removeToast} />
         </div>
     );
 }
