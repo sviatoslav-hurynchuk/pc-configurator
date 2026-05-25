@@ -6,6 +6,22 @@ use PDO;
 use Exception;
 
 class OrderModel extends BaseModel {
+    public function calculateTotalPrice(array $componentIds): float {
+        if (empty($componentIds)) return 0.0;
+        $placeholders = implode(',', array_fill(0, count($componentIds), '?'));
+        $stmt = $this->db->prepare("SELECT COALESCE(SUM(price), 0) as total FROM components WHERE id IN ($placeholders)");
+        $stmt->execute(array_values($componentIds));
+        return (float) $stmt->fetchColumn();
+    }
+
+    public function validateComponentIds(array $componentIds): bool {
+        if (empty($componentIds)) return false;
+        $placeholders = implode(',', array_fill(0, count($componentIds), '?'));
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM components WHERE id IN ($placeholders)");
+        $stmt->execute(array_values($componentIds));
+        return (int) $stmt->fetchColumn() === count($componentIds);
+    }
+
     public function createOrder(int $userId, float $totalPrice, string $status, array $componentIds): bool {
         try {
             $this->db->beginTransaction();
@@ -56,6 +72,12 @@ class OrderModel extends BaseModel {
         return $orders;
     }
     public function updateOrderStatus(int $orderId, int $userId, string $status): bool {
+        $checkStmt = $this->db->prepare("SELECT status FROM orders WHERE id = :id AND user_id = :user_id");
+        $checkStmt->execute(['id' => $orderId, 'user_id' => $userId]);
+        $current = $checkStmt->fetchColumn();
+        if ($current === false || $current !== 'saved') {
+            return false;
+        }
         $stmt = $this->db->prepare("UPDATE orders SET status = :status WHERE id = :id AND user_id = :user_id");
         return $stmt->execute([
             'status' => $status,
