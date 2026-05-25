@@ -113,9 +113,11 @@ class OrderController extends BaseController {
     {
         $this->requireAdmin();
 
-        $orderModel = new OrderModel();
-        $orders = $orderModel->getAllOrdersForAdmin();
+        $orders = $this->orderModel->getAllOrdersForAdmin();
 
-        echo json_encode($orders);
+        $this->jsonResponse([
+            'status' => 'success',
+            'data' => $orders
+        ]);
     }
 }

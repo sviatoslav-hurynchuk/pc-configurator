@@ -4,11 +4,13 @@ import { AuthContext } from '../context/AuthContext';
 import { updateUserProfile, deleteUserAccount, logoutUser } from '../services/api';
 import { BsList, BsNewspaper, BsShieldShaded } from 'react-icons/bs';
 import { useToast, ToastContainer } from '../components/Toast';
+import ConfirmModal from '../components/ConfirmModal';
 
 function ProfilePage() {
     const navigate = useNavigate();
     const { user, setUser, loading: authLoading } = useContext(AuthContext);
     const { toasts, showToast, removeToast } = useToast();
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -73,12 +75,7 @@ function ProfilePage() {
     };
 
     const handleDeleteAccount = async () => {
-        const confirmDelete = window.confirm(
-            'Ви дійсно бажаєте видалити свій акаунт? Цю дію неможливо скасувати, а всі ваші збірки будуть видалені назавжди.'
-        );
-
-        if (!confirmDelete) return;
-
+        setShowDeleteConfirm(false);
         setLoading(true);
         try {
             const data = await deleteUserAccount();
@@ -356,7 +353,7 @@ function ProfilePage() {
                             Видалення акаунта призведе до повного та незворотного видалення вашого профілю, збережених збірок та всіх пов'язаних файлів.
                         </p>
                         <button
-                            onClick={handleDeleteAccount}
+                            onClick={() => setShowDeleteConfirm(true)}
                             disabled={loading}
                             style={{
                                 padding: '12px 30px',
@@ -376,6 +373,13 @@ function ProfilePage() {
             </div>
         </div>
         <ToastContainer toasts={toasts} onRemove={removeToast} />
+        <ConfirmModal
+            isOpen={showDeleteConfirm}
+            message="Ви дійсно бажаєте видалити свій акаунт? Цю дію неможливо скасувати, а всі ваші збірки будуть видалені назавжди."
+            onConfirm={handleDeleteAccount}
+            onCancel={() => setShowDeleteConfirm(false)}
+            confirmLabel="Видалити акаунт"
+        />
         </>
     );
 }

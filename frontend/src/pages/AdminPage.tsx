@@ -5,6 +5,7 @@ import {PC_CATEGORIES} from '../constants';
 import AddComponentModal from '../components/AddComponentModal';
 import AddPageModal from '../components/AddPageModal';
 import { useToast, ToastContainer } from '../components/Toast';
+import ConfirmModal from '../components/ConfirmModal';
 import {BsBoxArrowLeft, BsBoxSeam, BsCart3, BsGrid1X2, BsPerson, BsFileText, BsCheck2, BsCheck2All} from "react-icons/bs";
 
 
@@ -28,6 +29,12 @@ export default function AdminPage() {
     const [editingComponent, setEditingComponent] = useState<PcComponent | null>(null);
     const [isPageModalOpen, setIsPageModalOpen] = useState(false);
     const [editingPage, setEditingPage] = useState<DynamicPage | null>(null);
+    const [confirmState, setConfirmState] = useState<{ open: boolean; message: string; onConfirm: () => void }>({ open: false, message: '', onConfirm: () => {} });
+
+    const openConfirm = (message: string, onConfirm: () => void) => {
+        setConfirmState({ open: true, message, onConfirm });
+    };
+    const closeConfirm = () => setConfirmState(s => ({ ...s, open: false }));
 
     const handleComponentAdded = async () => {
         setIsAddModalOpen(false);
@@ -50,18 +57,20 @@ export default function AdminPage() {
     };
 
     const handleDeletePage = async (id: number) => {
-        if (!confirm('Ви впевнені, що хочете видалити цю сторінку/новину?')) return;
-        setLoading(true);
-        const res = await deletePage(id);
-        if (res.status === 'success') {
-            const updated = await fetchAdminPages();
-            if (updated.status === 'success' && Array.isArray(updated.data)) {
-                setPages(updated.data);
+        openConfirm('Ви впевнені, що хочете видалити цю сторінку/новину?', async () => {
+            closeConfirm();
+            setLoading(true);
+            const res = await deletePage(id);
+            if (res.status === 'success') {
+                const updated = await fetchAdminPages();
+                if (updated.status === 'success' && Array.isArray(updated.data)) {
+                    setPages(updated.data);
+                }
+            } else {
+                showToast(res.message || 'Помилка видалення', 'error');
             }
-        } else {
-            showToast(res.message || 'Помилка видалення', 'error');
-        }
-        setLoading(false);
+            setLoading(false);
+        });
     };
 
     const handleStatusChange = async (orderId: number, newStatus: string) => {
@@ -83,16 +92,18 @@ export default function AdminPage() {
     };
 
     const handleDelete = async (id: number) => {
-        if (!confirm('Ви впевнені, що хочете видалити цю деталь?')) return;
-        setLoading(true);
-        const res = await deleteComponent(id);
-        if (res.status === 'success') {
-            const updatedComponents = await fetchComponents();
-            setComponents(updatedComponents);
-        } else {
-            showToast(res.message || 'Помилка видалення', 'error');
-        }
-        setLoading(false);
+        openConfirm('Ви впевнені, що хочете видалити цю деталь?', async () => {
+            closeConfirm();
+            setLoading(true);
+            const res = await deleteComponent(id);
+            if (res.status === 'success') {
+                const updatedComponents = await fetchComponents();
+                setComponents(updatedComponents);
+            } else {
+                showToast(res.message || 'Помилка видалення', 'error');
+            }
+            setLoading(false);
+        });
     };
     useEffect(() => {
         const loadData = async () => {
@@ -173,6 +184,14 @@ export default function AdminPage() {
 
     return (
         <div style={{ backgroundColor: '#fafafa', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
+            <ConfirmModal
+                isOpen={confirmState.open}
+                message={confirmState.message}
+                onConfirm={confirmState.onConfirm}
+                onCancel={closeConfirm}
+                confirmLabel="Видалити"
+            />
+            <ToastContainer toasts={toasts} onRemove={removeToast} />
             <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
