@@ -24,6 +24,7 @@ function ConfiguratorPage() {
 
     const [isOrderHistoryModalOpen, setIsOrderHistoryModalOpen] = useState(false);
     const [isBuildOverviewModalOpen, setIsBuildOverviewModalOpen] = useState(false);
+    const [orderLoading, setOrderLoading] = useState(false);
 
     const getComponentSpec = (component: PcComponent | undefined, key: string): string | null => {
         if (!component || !component.specs) return null;
@@ -140,6 +141,7 @@ function ConfiguratorPage() {
             return;
         }
 
+        setOrderLoading(true);
         try {
             const res = await saveBuild({ componentIds, totalPrice, status: 'saved' });
             if (res.status === 'success') {
@@ -149,6 +151,8 @@ function ConfiguratorPage() {
             }
         } catch (err) {
             showToast('Помилка з\'єднання з сервером', 'error');
+        } finally {
+            setOrderLoading(false);
         }
     };
 
@@ -172,6 +176,7 @@ function ConfiguratorPage() {
             return;
         }
 
+        setOrderLoading(true);
         try {
             const res = await saveBuild({ componentIds, totalPrice, status: 'processing' });
             if (res.status === 'success') {
@@ -183,6 +188,8 @@ function ConfiguratorPage() {
             }
         } catch (err) {
             showToast('Помилка з\'єднання з сервером', 'error');
+        } finally {
+            setOrderLoading(false);
         }
     };
 
@@ -629,15 +636,16 @@ function ConfiguratorPage() {
 
                                     <button
                                         onClick={handleSaveBuild}
-                                        disabled={hasErrors}
+                                        disabled={hasErrors || orderLoading}
                                         style={{
                                             width: '100%', padding: '15px 40px',
-                                            backgroundColor: hasErrors ? '#ccc' : '#a5c926',
+                                            backgroundColor: hasErrors ? '#ccc' : (orderLoading ? '#bce03a' : '#a5c926'),
                                             color: '#fff', border: 'none', borderRadius: '30px',
                                             fontSize: '16px', fontWeight: 'bold',
-                                            cursor: hasErrors ? 'not-allowed' : 'pointer'
+                                            cursor: (hasErrors || orderLoading) ? 'not-allowed' : 'pointer',
+                                            display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px'
                                         }}>
-                                        Зберегти збірку
+                                        {orderLoading ? 'Збереження...' : 'Зберегти збірку'}
                                     </button>
 
                                     <button

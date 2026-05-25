@@ -58,6 +58,7 @@ interface AddComponentModalProps {
 
 export default function AddComponentModal({ isOpen, onClose, onSuccess, componentToEdit }: AddComponentModalProps) {
     const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
     const [categoryId, setCategoryId] = useState(PC_CATEGORIES[0].id);
     const [price, setPrice] = useState('');
     const [powerDraw, setPowerDraw] = useState('0');
@@ -73,6 +74,7 @@ export default function AddComponentModal({ isOpen, onClose, onSuccess, componen
         if (isOpen) {
             if (componentToEdit) {
                 setName(componentToEdit.name);
+                setDescription(componentToEdit.description || '');
                 setCategoryId(componentToEdit.category_id);
                 setPrice(componentToEdit.price.toString());
                 setPowerDraw((componentToEdit.power_draw_watts || 0).toString());
@@ -88,6 +90,7 @@ export default function AddComponentModal({ isOpen, onClose, onSuccess, componen
                 }
             } else {
                 setName('');
+                setDescription('');
                 setCategoryId(PC_CATEGORIES[0].id);
                 setPrice('');
                 setPowerDraw('0');
@@ -158,6 +161,7 @@ export default function AddComponentModal({ isOpen, onClose, onSuccess, componen
 
         const payload = {
             name,
+            description,
             category_id: categoryId,
             price: parseFloat(price),
             power_draw_watts: parseInt(powerDraw, 10),
@@ -203,6 +207,16 @@ export default function AddComponentModal({ isOpen, onClose, onSuccess, componen
                             onChange={(e) => setName(e.target.value)}
                             style={inputStyle}
                             placeholder="напр. AMD Ryzen 5 7600"
+                        />
+                    </div>
+
+                    <div style={formGroupStyle}>
+                        <label style={labelStyle}>Опис (необов'язково)</label>
+                        <textarea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            style={{...inputStyle, resize: 'vertical', minHeight: '80px'}}
+                            placeholder="Короткий опис товару..."
                         />
                     </div>
 
