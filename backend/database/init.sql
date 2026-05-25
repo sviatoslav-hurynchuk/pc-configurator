@@ -279,3 +279,42 @@ VALUES (1, 'AMD Ryzen 7 7800X3D 4.2(5.0)GHz 96MB', 'Top-tier gaming CPU', 15599.
          "color": "Clear",
          "rgb": true
        }', 'https://content2.rozetka.com.ua/goods/images/big/326665342.jpg');
+
+-- Seed Regular Users (Password is 'password')
+INSERT INTO users (name, email, password_hash, role)
+VALUES 
+('Іван Петренко', 'ivan@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user'),
+('Олена Коваленко', 'olena@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user'),
+('Тарас Шевченко', 'taras@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user');
+
+-- Seed Orders
+INSERT INTO orders (user_id, total_price, status, created_at)
+VALUES 
+(2, 43295.00, 'processing', '2023-10-01 10:00:00'),
+(2, 5439.00, 'completed', '2023-10-15 14:30:00'),
+(3, 30094.00, 'saved', '2023-11-05 09:15:00'),
+(4, 26999.00, 'cancelled', '2023-11-20 16:45:00');
+
+-- Seed Order Items
+INSERT INTO order_items (order_id, component_id, price_at_purchase)
+VALUES 
+-- Order 1 (User 2, Processing)
+(1, 1, 15599.00), -- AMD Ryzen 7 7800X3D
+(1, 4, 8599.00),  -- MSI MAG B650
+(1, 8, 4999.00),  -- Kingston FURY DDR5
+(1, 12, 7599.00), -- Samsung 990 PRO
+(1, 22, 6499.00), -- Corsair RM850x
+
+-- Order 2 (User 2, Completed)
+(2, 3, 5439.00),  -- Asus PRIME B650M-K
+
+-- Order 3 (User 3, Saved)
+(3, 2, 12999.00), -- Intel Core i5-13600K
+(3, 5, 4599.00),  -- Gigabyte B760M
+(3, 10, 3299.00), -- G.Skill Ripjaws V DDR4
+(3, 11, 2699.00), -- Kingston NV3
+(3, 21, 4299.00), -- Chieftec Polaris 850W
+(3, 23, 2199.00), -- MSI MAG FORGE 100M
+
+-- Order 4 (User 4, Cancelled)
+(4, 6, 26999.00); -- Gigabyte GeForce RTX 4070
