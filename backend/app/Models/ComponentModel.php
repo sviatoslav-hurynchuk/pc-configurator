@@ -19,14 +19,15 @@ class ComponentModel extends BaseModel {
         return $components;
     }
     public function createComponent(array $data): bool {
-        $sql = "INSERT INTO components (category_id, name, price, power_draw_watts, image_url, specs) 
-                VALUES (:category_id, :name, :price, :power_draw_watts, :image_url, :specs)";
+        $sql = "INSERT INTO components (category_id, name, description, price, power_draw_watts, image_url, specs) 
+                VALUES (:category_id, :name, :description, :price, :power_draw_watts, :image_url, :specs)";
 
         $stmt = $this->db->prepare($sql);
 
         return $stmt->execute([
             'category_id' => $data['category_id'],
             'name' => $data['name'],
+            'description' => $data['description'] ?? null,
             'price' => $data['price'],
             'power_draw_watts' => $data['power_draw_watts'],
             'image_url' => $data['image_url'],
@@ -35,7 +36,7 @@ class ComponentModel extends BaseModel {
     }
 
     public function updateComponent(int $id, array $data): bool {
-        $sql = "UPDATE components SET category_id = :category_id, name = :name, price = :price, 
+        $sql = "UPDATE components SET category_id = :category_id, name = :name, description = :description, price = :price, 
                 power_draw_watts = :power_draw_watts, image_url = :image_url, specs = :specs 
                 WHERE id = :id";
         
@@ -45,6 +46,7 @@ class ComponentModel extends BaseModel {
             'id' => $id,
             'category_id' => $data['category_id'],
             'name' => $data['name'],
+            'description' => $data['description'] ?? null,
             'price' => $data['price'],
             'power_draw_watts' => $data['power_draw_watts'],
             'image_url' => $data['image_url'],

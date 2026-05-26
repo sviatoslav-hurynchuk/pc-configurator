@@ -1,0 +1,14 @@
+{
+  "/old-about": {
+    "destination": "http://localhost:5173/pages/about-us",
+    "status": 301
+  },
+  "/old-contacts": {
+    "destination": "http://localhost:5173/pages/contacts",
+    "status": 301
+  },
+  "/broken-link": {
+    "destination": null,
+    "status": 404
+  }
+}

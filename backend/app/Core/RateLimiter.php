@@ -17,40 +17,43 @@
             $requests = [];
             $ipCount = 0;
 
-            if (file_exists($this->logFile)) {
-                $handle = fopen($this->logFile, 'r');
-                if ($handle) {
-                    while (($line = fgets($handle)) !== false) {
-                        $line = trim($line);
-                        if (empty($line)) continue;
+            $handle = fopen($this->logFile, 'c+');
+            if (!$handle) {
+                return true;
+            }
 
-                        $parts = explode('|', $line);
-                        if (count($parts) === 2) {
-                            $logIp = $parts[0];
-                            $logTime = (int)$parts[1];
+            flock($handle, LOCK_EX);
 
-                            if ($now - $logTime <= $this->timeFrame) {
-                                $requests[] = ['ip' => $logIp, 'time' => $logTime];
-                                if ($logIp === $ip) {
-                                    $ipCount++;
-                                }
-                            }
+            rewind($handle);
+            while (($line = fgets($handle)) !== false) {
+                $line = trim($line);
+                if (empty($line)) continue;
+
+                $parts = explode('|', $line);
+                if (count($parts) === 2) {
+                    $logIp = $parts[0];
+                    $logTime = (int)$parts[1];
+
+                    if ($now - $logTime <= $this->timeFrame) {
+                        $requests[] = ['ip' => $logIp, 'time' => $logTime];
+                        if ($logIp === $ip) {
+                            $ipCount++;
                         }
                     }
-                    fclose($handle);
                 }
             }
 
             $requests[] = ['ip' => $ip, 'time' => $now];
             $ipCount++;
 
-            $handle = fopen($this->logFile, 'w');
-            if ($handle) {
-                foreach ($requests as $req) {
-                    fwrite($handle, $req['ip'] . '|' . $req['time'] . "\n");
-                }
-                fclose($handle);
+            ftruncate($handle, 0);
+            rewind($handle);
+            foreach ($requests as $req) {
+                fwrite($handle, $req['ip'] . '|' . $req['time'] . "\n");
             }
+
+            flock($handle, LOCK_UN);
+            fclose($handle);
 
             return $ipCount <= $this->limit;
         }

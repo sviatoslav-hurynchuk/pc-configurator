@@ -17,15 +17,36 @@ class OrderController extends BaseController {
         $input = json_decode(file_get_contents('php://input'), true);
 
         $componentIds = $input['componentIds'] ?? [];
-        $totalPrice = $input['totalPrice'] ?? 0;
         $status = $input['status'] ?? 'saved';
 
-        if (empty($componentIds)) {
+        $allowedStatuses = ['saved', 'processing'];
+        if (!in_array($status, $allowedStatuses, true)) {
+            $this->jsonResponse(['status' => 'error', 'message' => 'Недозволений статус замовлення'], 400);
+            return;
+        }
+
+        if (empty($componentIds) || !is_array($componentIds)) {
             $this->jsonResponse(['status' => 'error', 'message' => 'Збірка порожня'], 400);
             return;
         }
 
+        $componentIds = array_map('intval', $componentIds);
+        $componentIds = array_filter($componentIds, fn($id) => $id > 0);
+        $componentIds = array_values($componentIds);
+
+        if (empty($componentIds)) {
+            $this->jsonResponse(['status' => 'error', 'message' => 'Некоректні ідентифікатори компонентів'], 400);
+            return;
+        }
+
         $userId = $_SESSION['user_id'];
+
+        if (!$this->orderModel->validateComponentIds($componentIds)) {
+            $this->jsonResponse(['status' => 'error', 'message' => 'Один або декілька компонентів не існують'], 422);
+            return;
+        }
+
+        $totalPrice = $this->orderModel->calculateTotalPrice($componentIds);
 
         if ($this->orderModel->createOrder($userId, $totalPrice, $status, $componentIds)) {
             $this->jsonResponse(['status' => 'success', 'message' => 'Збірку успішно збережено']);
@@ -48,11 +69,16 @@ class OrderController extends BaseController {
         $this->requireAuth();
 
         $input = json_decode(file_get_contents('php://input'), true);
-        $orderId = $input['orderId'] ?? null;
-        $status = $input['status'] ?? 'processing';
+        $orderId = isset($input['orderId']) ? (int)$input['orderId'] : null;
+        $status = $input['status'] ?? '';
 
-        if (!$orderId) {
+        if (!$orderId || $orderId <= 0) {
             $this->jsonResponse(['status' => 'error', 'message' => 'Не вказано ID замовлення'], 400);
+            return;
+        }
+
+        if ($status !== 'processing') {
+            $this->jsonResponse(['status' => 'error', 'message' => 'Недозволена зміна статусу'], 403);
             return;
         }
 
@@ -61,7 +87,7 @@ class OrderController extends BaseController {
         if ($this->orderModel->updateOrderStatus($orderId, $userId, $status)) {
             $this->jsonResponse(['status' => 'success', 'message' => 'Замовлення успішно оформлено']);
         } else {
-            $this->jsonResponse(['status' => 'error', 'message' => 'Помилка оформлення'], 500);
+            $this->jsonResponse(['status' => 'error', 'message' => 'Помилка оформлення або недозволена операція'], 422);
         }
     }
     public function adminUpdateStatus(): void {
@@ -87,9 +113,11 @@ class OrderController extends BaseController {
     {
         $this->requireAdmin();
 
-        $orderModel = new OrderModel();
-        $orders = $orderModel->getAllOrdersForAdmin();
+        $orders = $this->orderModel->getAllOrdersForAdmin();
 
-        echo json_encode($orders);
+        $this->jsonResponse([
+            'status' => 'success',
+            'data' => $orders
+        ]);
     }
 }

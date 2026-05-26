@@ -4,8 +4,10 @@ import type {PcComponent, DynamicPage} from '../types';
 import {PC_CATEGORIES} from '../constants';
 import AddComponentModal from '../components/AddComponentModal';
 import AddPageModal from '../components/AddPageModal';
-
+import { useToast, ToastContainer } from '../components/Toast';
+import ConfirmModal from '../components/ConfirmModal';
 import {BsBoxArrowLeft, BsBoxSeam, BsCart3, BsGrid1X2, BsPerson, BsFileText, BsCheck2, BsCheck2All} from "react-icons/bs";
+
 
 interface AdminOrder {
     id: number;
@@ -14,9 +16,15 @@ interface AdminOrder {
     total_price: string;
     status: string;
     created_at: string;
+    items?: {
+        name: string;
+        image_url: string;
+        price_at_purchase: string;
+    }[];
 }
 
 export default function AdminPage() {
+    const { toasts, showToast, removeToast } = useToast();
     const [components, setComponents] = useState<PcComponent[]>([]);
     const [orders, setOrders] = useState<AdminOrder[]>([]);
     const [pages, setPages] = useState<DynamicPage[]>([]);
@@ -26,6 +34,13 @@ export default function AdminPage() {
     const [editingComponent, setEditingComponent] = useState<PcComponent | null>(null);
     const [isPageModalOpen, setIsPageModalOpen] = useState(false);
     const [editingPage, setEditingPage] = useState<DynamicPage | null>(null);
+    const [confirmState, setConfirmState] = useState<{ open: boolean; message: string; onConfirm: () => void }>({ open: false, message: '', onConfirm: () => {} });
+    const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
+
+    const openConfirm = (message: string, onConfirm: () => void) => {
+        setConfirmState({ open: true, message, onConfirm });
+    };
+    const closeConfirm = () => setConfirmState(s => ({ ...s, open: false }));
 
     const handleComponentAdded = async () => {
         setIsAddModalOpen(false);
@@ -48,18 +63,20 @@ export default function AdminPage() {
     };
 
     const handleDeletePage = async (id: number) => {
-        if (!confirm('Ви впевнені, що хочете видалити цю сторінку/новину?')) return;
-        setLoading(true);
-        const res = await deletePage(id);
-        if (res.status === 'success') {
-            const updated = await fetchAdminPages();
-            if (updated.status === 'success' && Array.isArray(updated.data)) {
-                setPages(updated.data);
+        openConfirm('Ви впевнені, що хочете видалити цю сторінку/новину?', async () => {
+            closeConfirm();
+            setLoading(true);
+            const res = await deletePage(id);
+            if (res.status === 'success') {
+                const updated = await fetchAdminPages();
+                if (updated.status === 'success' && Array.isArray(updated.data)) {
+                    setPages(updated.data);
+                }
+            } else {
+                showToast(res.message || 'Помилка видалення', 'error');
             }
-        } else {
-            alert(res.message || 'Помилка видалення');
-        }
-        setLoading(false);
+            setLoading(false);
+        });
     };
 
     const handleStatusChange = async (orderId: number, newStatus: string) => {
@@ -75,22 +92,24 @@ export default function AdminPage() {
                 setOrders([]);
             }
         } else {
-            alert(res.message || 'Помилка оновлення статусу');
+            showToast(res.message || 'Помилка оновлення статусу', 'error');
         }
         setLoading(false);
     };
 
     const handleDelete = async (id: number) => {
-        if (!confirm('Ви впевнені, що хочете видалити цю деталь?')) return;
-        setLoading(true);
-        const res = await deleteComponent(id);
-        if (res.status === 'success') {
-            const updatedComponents = await fetchComponents();
-            setComponents(updatedComponents);
-        } else {
-            alert(res.message || 'Помилка видалення');
-        }
-        setLoading(false);
+        openConfirm('Ви впевнені, що хочете видалити цю деталь?', async () => {
+            closeConfirm();
+            setLoading(true);
+            const res = await deleteComponent(id);
+            if (res.status === 'success') {
+                const updatedComponents = await fetchComponents();
+                setComponents(updatedComponents);
+            } else {
+                showToast(res.message || 'Помилка видалення', 'error');
+            }
+            setLoading(false);
+        });
     };
     useEffect(() => {
         const loadData = async () => {
@@ -171,6 +190,14 @@ export default function AdminPage() {
 
     return (
         <div style={{ backgroundColor: '#fafafa', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
+            <ConfirmModal
+                isOpen={confirmState.open}
+                message={confirmState.message}
+                onConfirm={confirmState.onConfirm}
+                onCancel={closeConfirm}
+                confirmLabel="Видалити"
+            />
+            <ToastContainer toasts={toasts} onRemove={removeToast} />
             <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -368,9 +395,22 @@ export default function AdminPage() {
                                             <th style={thStyle}>Статус</th>
                                         </tr>
                                         </thead>
-                                        <tbody>
-                                        {orders.map((order) => (
-                                            <tr key={order.id} style={{borderBottom: '1px solid #eee'}}>
+                                        {orders.length === 0 ? (
+                                            <tbody>
+                                                <tr>
+                                                    <td colSpan={4} style={{padding: '40px', textAlign: 'center', color: '#999'}}>
+                                                        Замовлень ще немає
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        ) : (
+                                            orders.map((order) => (
+                                                <tbody key={order.id} style={{
+                                                    outline: expandedOrderId === order.id ? '2px solid #a5c926' : 'none',
+                                                    outlineOffset: '-1px',
+                                                    backgroundColor: expandedOrderId === order.id ? '#fdfdfd' : 'transparent'
+                                                }}>
+                                                    <tr style={{borderBottom: expandedOrderId === order.id ? 'none' : '1px solid #eee'}}>
                                                 <td style={tdStyle}>
                                                     <div style={{fontWeight: 'bold', color: '#333'}}>#{order.id}</div>
                                                     <div style={{fontSize: '12px', color: '#999', marginTop: '4px'}}>
@@ -428,18 +468,42 @@ export default function AdminPage() {
                                                                 Виконати <BsCheck2All size={14}/>
                                                             </button>
                                                         )}
+                                                        <button 
+                                                            onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
+                                                            style={{
+                                                                marginLeft: '10px', padding: '6px 12px', borderRadius: '20px', cursor: 'pointer',
+                                                                border: '1px solid #ccc', backgroundColor: '#fff', color: '#333',
+                                                                fontSize: '11px', fontWeight: 'bold'
+                                                            }}
+                                                        >
+                                                            {expandedOrderId === order.id ? 'Сховати деталі' : 'Деталі'}
+                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>
-                                        ))}
-                                        {orders.length === 0 && (
-                                            <tr>
-                                                <td colSpan={4} style={{padding: '40px', textAlign: 'center', color: '#999'}}>
-                                                    Замовлень ще немає
-                                                </td>
-                                            </tr>
+                                            {expandedOrderId === order.id && order.items && (
+                                                <tr style={{ backgroundColor: '#fdfdfd' }}>
+                                                    <td colSpan={4} style={{ padding: '15px 20px', borderBottom: '1px solid #eee' }}>
+                                                        <div style={{ fontWeight: 'bold', marginBottom: '10px', color: '#666' }}>Склад замовлення:</div>
+                                                        {order.items.length > 0 ? (
+                                                            <ul style={{ margin: 0, paddingLeft: '20px', color: '#333' }}>
+                                                                {order.items.map((item, idx) => (
+                                                                    <li key={idx} style={{ marginBottom: '5px', fontSize: '13px' }}>
+                                                                        {item.name} — <span style={{ fontWeight: 'bold', color: '#f1580c' }}>{parseFloat(item.price_at_purchase).toFixed(0)} ₴</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        ) : (
+                                                            <div style={{ color: '#999', fontSize: '13px', fontStyle: 'italic' }}>
+                                                                Вміст недоступний (товари були видалені до оновлення системи бази даних).
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            )}
+                                                </tbody>
+                                            ))
                                         )}
-                                        </tbody>
                                     </table>
                                 )}
                             </div>
@@ -522,6 +586,7 @@ export default function AdminPage() {
                 onSuccess={handlePageSaved}
                 pageToEdit={editingPage}
             />
+            <ToastContainer toasts={toasts} onRemove={removeToast} />
         </div>
     );
 }

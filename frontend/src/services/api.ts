@@ -1,4 +1,3 @@
-import axios from 'axios';
 import type {PcComponent} from '../types';
 
 const API_BASE_URL = 'http://localhost:8000';
@@ -54,13 +53,19 @@ export const checkAuth = async () => {
 
 export const fetchComponents = async (): Promise<PcComponent[]> => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/api/components`);
-        return response.data.data;
+        const response = await fetch(`${API_BASE_URL}/api/components`, fetchOptions('GET'));
+        if (!response.ok) {
+            console.error("Server error:", response.status);
+            return [];
+        }
+        const json = await response.json();
+        return json.data;
     } catch (error) {
         console.error("Fetch error:", error);
         return [];
     }
 };
+
 export const fetchUserOrders = async () => {
     const response = await fetch(`${API_BASE_URL}/api/orders`, fetchOptions('GET'));
     return response.json();

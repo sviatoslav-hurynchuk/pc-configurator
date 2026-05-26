@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {fetchUserOrders, updateOrderStatus} from '../services/api';
+import { useToast, ToastContainer } from './Toast';
 
 interface OrderHistoryModalProps {
     isOpen: boolean;
@@ -9,6 +10,7 @@ interface OrderHistoryModalProps {
 export default function OrderHistoryModal({ isOpen, onClose }: OrderHistoryModalProps) {
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+    const { toasts, showToast, removeToast } = useToast();
 
     useEffect(() => {
         if (isOpen) {
@@ -28,19 +30,20 @@ export default function OrderHistoryModal({ isOpen, onClose }: OrderHistoryModal
         try {
             const res = await updateOrderStatus(orderId, 'processing');
             if (res.status === 'success') {
-                alert('Замовлення успішно оформлено!');
+                showToast('Замовлення успішно оформлено!', 'success');
                 const updatedOrders = await fetchUserOrders();
                 if (updatedOrders.status === 'success') {
                     setOrders(updatedOrders.orders);
                 }
             } else {
-                alert(res.message || 'Помилка');
+                showToast(res.message || 'Помилка', 'error');
             }
         } catch (err) {
-            alert('Помилка з\'єднання з сервером');
+            showToast('Помилка з\'єднання з сервером', 'error');
         }
     };
     return (
+        <>
         <div style={{
             position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
             backgroundColor: 'rgba(0, 0, 0, 0.6)', display: 'flex',
@@ -87,11 +90,19 @@ export default function OrderHistoryModal({ isOpen, onClose }: OrderHistoryModal
                                                 fontWeight: 'bold',
                                                 padding: '4px 10px',
                                                 borderRadius: '12px',
-                                                backgroundColor: order.status === 'processing' ? '#fff9e6' : '#f4f9e9',
-                                                color: order.status === 'processing' ? '#f1c40f' : '#a5c926',
-                                                display: 'inline-block'
+                                                display: 'inline-block',
+                                                ...(order.status === 'processing'
+                                                    ? { backgroundColor: '#fff9e6', color: '#d4a017' }
+                                                    : order.status === 'accepted'
+                                                    ? { backgroundColor: '#f0f9ff', color: '#0284c7' }
+                                                    : order.status === 'completed'
+                                                    ? { backgroundColor: '#e8f5e9', color: '#2e7d32' }
+                                                    : { backgroundColor: '#f4f9e9', color: '#a5c926' })
                                             }}>
-                                                {order.status === 'processing' ? 'В обробці' : 'Збережено'}
+                                                {order.status === 'processing' ? 'В обробці'
+                                                    : order.status === 'accepted' ? 'Прийнято'
+                                                    : order.status === 'completed' ? 'Виконано'
+                                                    : 'Збережено'}
                                             </div>
                                             <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#f1580c', marginTop: '5px' }}>
                                                 {parseFloat(order.total_price).toFixed(0)} ₴
@@ -113,12 +124,18 @@ export default function OrderHistoryModal({ isOpen, onClose }: OrderHistoryModal
                                     </div>
 
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                        {order.items.map((item: any, idx: number) => (
-                                            <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
-                                                <span style={{ color: '#555' }}>- {item.name}</span>
-                                                <span style={{ fontWeight: 'bold', color: '#333' }}>{parseFloat(item.price_at_purchase).toFixed(0)} ₴</span>
+                                        {order.items && order.items.length > 0 ? (
+                                            order.items.map((item: any, idx: number) => (
+                                                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
+                                                    <span style={{ color: '#555' }}>- {item.name}</span>
+                                                    <span style={{ fontWeight: 'bold', color: '#333' }}>{parseFloat(item.price_at_purchase).toFixed(0)} ₴</span>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div style={{ color: '#999', fontSize: '13px', fontStyle: 'italic', marginTop: '10px' }}>
+                                                Вміст недоступний (товари були видалені до оновлення системи бази даних).
                                             </div>
-                                        ))}
+                                        )}
                                     </div>
                                 </div>
                             ))}
@@ -127,5 +144,6 @@ export default function OrderHistoryModal({ isOpen, onClose }: OrderHistoryModal
                 </div>
             </div>
         </div>
-    );
+        <ToastContainer toasts={toasts} onRemove={removeToast} />
+    </>);
 }

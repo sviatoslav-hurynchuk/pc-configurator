@@ -8,9 +8,11 @@ import { AuthContext } from '../context/AuthContext';
 import AuthModal from '../components/AuthModal';
 import OrderHistoryModal from "../components/OrderHistoryModal";
 import BuildOverviewModal from "../components/BuildOverviewModal";
+import { useToast, ToastContainer } from '../components/Toast';
 
 function ConfiguratorPage() {
     const navigate = useNavigate();
+    const { toasts, showToast, removeToast } = useToast();
     const [components, setComponents] = useState<PcComponent[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -22,6 +24,7 @@ function ConfiguratorPage() {
 
     const [isOrderHistoryModalOpen, setIsOrderHistoryModalOpen] = useState(false);
     const [isBuildOverviewModalOpen, setIsBuildOverviewModalOpen] = useState(false);
+    const [orderLoading, setOrderLoading] = useState(false);
 
     const getComponentSpec = (component: PcComponent | undefined, key: string): string | null => {
         if (!component || !component.specs) return null;
@@ -129,24 +132,27 @@ function ConfiguratorPage() {
             .map((item: any) => item.id);
 
         if (componentIds.length === 0) {
-            alert('Збірка порожня. Додайте хоча б одну деталь.');
+            showToast('Збірка порожня. Додайте хоча б одну деталь.', 'warning');
             return;
         }
 
         if (hasErrors) {
-            alert('Помилка сумісності! Перевірте обрані комплектуючі перед збереженням.');
+            showToast('Помилка сумісності! Перевірте обрані комплектуючі перед збереженням.', 'error');
             return;
         }
 
+        setOrderLoading(true);
         try {
             const res = await saveBuild({ componentIds, totalPrice, status: 'saved' });
             if (res.status === 'success') {
-                alert('Збірку успішно збережено!');
+                showToast('Збірку успішно збережено!', 'success');
             } else {
-                alert(res.message || 'Помилка збереження');
+                showToast(res.message || 'Помилка збереження', 'error');
             }
         } catch (err) {
-            alert('Помилка з\'єднання з сервером');
+            showToast('Помилка з\'єднання з сервером', 'error');
+        } finally {
+            setOrderLoading(false);
         }
     };
 
@@ -161,26 +167,29 @@ function ConfiguratorPage() {
             .map((item: any) => item.id);
 
         if (componentIds.length === 0) {
-            alert('Збірка порожня. Додайте хоча б одну деталь перед покупкою.');
+            showToast('Збірка порожня. Додайте хоча б одну деталь перед покупкою.', 'warning');
             return;
         }
 
         if (hasErrors) {
-            alert('Помилка сумісності! Перевірте обрані комплектуючі перед покупкою.');
+            showToast('Помилка сумісності! Перевірте обрані комплектуючі перед покупкою.', 'error');
             return;
         }
 
+        setOrderLoading(true);
         try {
             const res = await saveBuild({ componentIds, totalPrice, status: 'processing' });
             if (res.status === 'success') {
-                alert('Замовлення успішно оформлено! Переходимо до оплати...');
+                showToast('Замовлення успішно оформлено! Переходимо до оплати...', 'success');
                 setBuild({});
                 setActiveCategory(null);
             } else {
-                alert(res.message || 'Помилка оформлення замовлення');
+                showToast(res.message || 'Помилка оформлення замовлення', 'error');
             }
         } catch (err) {
-            alert('Помилка з\'єднання з сервером');
+            showToast('Помилка з\'єднання з сервером', 'error');
+        } finally {
+            setOrderLoading(false);
         }
     };
 
@@ -627,15 +636,16 @@ function ConfiguratorPage() {
 
                                     <button
                                         onClick={handleSaveBuild}
-                                        disabled={hasErrors}
+                                        disabled={hasErrors || orderLoading}
                                         style={{
                                             width: '100%', padding: '15px 40px',
-                                            backgroundColor: hasErrors ? '#ccc' : '#a5c926',
+                                            backgroundColor: hasErrors ? '#ccc' : (orderLoading ? '#bce03a' : '#a5c926'),
                                             color: '#fff', border: 'none', borderRadius: '30px',
                                             fontSize: '16px', fontWeight: 'bold',
-                                            cursor: hasErrors ? 'not-allowed' : 'pointer'
+                                            cursor: (hasErrors || orderLoading) ? 'not-allowed' : 'pointer',
+                                            display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px'
                                         }}>
-                                        Зберегти збірку
+                                        {orderLoading ? 'Збереження...' : 'Зберегти збірку'}
                                     </button>
 
                                     <button
@@ -658,6 +668,7 @@ function ConfiguratorPage() {
             </div>
             <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
             <OrderHistoryModal isOpen={isOrderHistoryModalOpen} onClose={() => setIsOrderHistoryModalOpen(false)} />
+            <ToastContainer toasts={toasts} onRemove={removeToast} />
             <BuildOverviewModal
                 isOpen={isBuildOverviewModalOpen}
                 onClose={() => setIsBuildOverviewModalOpen(false)}

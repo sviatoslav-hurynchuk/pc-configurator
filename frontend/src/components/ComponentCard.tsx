@@ -23,7 +23,7 @@ export default function ComponentCard({ item, onAdd }: Props) {
             />
             <h3 style={{ fontSize: '1.1rem', margin: '10px 0' }}>{item.name}</h3>
             <p style={{ color: '#666', fontSize: '0.9rem' }}>{item.description}</p>
-            <h2 style={{ color: '#2ecc71', margin: '10px 0' }}>${item.price}</h2>
+            <h2 style={{ color: '#2ecc71', margin: '10px 0' }}>₴{item.price}</h2>
 
             <div style={{ backgroundColor: '#f9f9f9', padding: '8px', borderRadius: '4px', fontSize: '0.8rem', flexGrow: 1 }}>
                 <strong>Specs:</strong>
