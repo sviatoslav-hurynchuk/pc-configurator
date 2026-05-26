@@ -101,6 +101,19 @@ class OrderModel extends BaseModel {
                 ORDER BY o.created_at DESC";
 
         $stmt = $this->db->query($sql);
-        return $stmt->fetchAll();
+        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($orders as &$order) {
+            $stmtItems = $this->db->prepare("
+                SELECT c.name, c.image_url, oi.price_at_purchase 
+                FROM order_items oi
+                JOIN components c ON oi.component_id = c.id
+                WHERE oi.order_id = :order_id
+            ");
+            $stmtItems->execute(['order_id' => $order['id']]);
+            $order['items'] = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        return $orders;
     }
 }

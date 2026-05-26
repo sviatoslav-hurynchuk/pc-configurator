@@ -16,6 +16,11 @@ interface AdminOrder {
     total_price: string;
     status: string;
     created_at: string;
+    items?: {
+        name: string;
+        image_url: string;
+        price_at_purchase: string;
+    }[];
 }
 
 export default function AdminPage() {
@@ -30,6 +35,7 @@ export default function AdminPage() {
     const [isPageModalOpen, setIsPageModalOpen] = useState(false);
     const [editingPage, setEditingPage] = useState<DynamicPage | null>(null);
     const [confirmState, setConfirmState] = useState<{ open: boolean; message: string; onConfirm: () => void }>({ open: false, message: '', onConfirm: () => {} });
+    const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
 
     const openConfirm = (message: string, onConfirm: () => void) => {
         setConfirmState({ open: true, message, onConfirm });
@@ -389,9 +395,22 @@ export default function AdminPage() {
                                             <th style={thStyle}>Статус</th>
                                         </tr>
                                         </thead>
-                                        <tbody>
-                                        {orders.map((order) => (
-                                            <tr key={order.id} style={{borderBottom: '1px solid #eee'}}>
+                                        {orders.length === 0 ? (
+                                            <tbody>
+                                                <tr>
+                                                    <td colSpan={4} style={{padding: '40px', textAlign: 'center', color: '#999'}}>
+                                                        Замовлень ще немає
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        ) : (
+                                            orders.map((order) => (
+                                                <tbody key={order.id} style={{
+                                                    outline: expandedOrderId === order.id ? '2px solid #a5c926' : 'none',
+                                                    outlineOffset: '-1px',
+                                                    backgroundColor: expandedOrderId === order.id ? '#fdfdfd' : 'transparent'
+                                                }}>
+                                                    <tr style={{borderBottom: expandedOrderId === order.id ? 'none' : '1px solid #eee'}}>
                                                 <td style={tdStyle}>
                                                     <div style={{fontWeight: 'bold', color: '#333'}}>#{order.id}</div>
                                                     <div style={{fontSize: '12px', color: '#999', marginTop: '4px'}}>
@@ -449,18 +468,36 @@ export default function AdminPage() {
                                                                 Виконати <BsCheck2All size={14}/>
                                                             </button>
                                                         )}
+                                                        <button 
+                                                            onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
+                                                            style={{
+                                                                marginLeft: '10px', padding: '6px 12px', borderRadius: '20px', cursor: 'pointer',
+                                                                border: '1px solid #ccc', backgroundColor: '#fff', color: '#333',
+                                                                fontSize: '11px', fontWeight: 'bold'
+                                                            }}
+                                                        >
+                                                            {expandedOrderId === order.id ? 'Сховати деталі' : 'Деталі'}
+                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>
-                                        ))}
-                                        {orders.length === 0 && (
-                                            <tr>
-                                                <td colSpan={4} style={{padding: '40px', textAlign: 'center', color: '#999'}}>
-                                                    Замовлень ще немає
-                                                </td>
-                                            </tr>
+                                            {expandedOrderId === order.id && order.items && order.items.length > 0 && (
+                                                <tr style={{ backgroundColor: '#fdfdfd' }}>
+                                                    <td colSpan={4} style={{ padding: '15px 20px', borderBottom: '1px solid #eee' }}>
+                                                        <div style={{ fontWeight: 'bold', marginBottom: '10px', color: '#666' }}>Склад замовлення:</div>
+                                                        <ul style={{ margin: 0, paddingLeft: '20px', color: '#333' }}>
+                                                            {order.items.map((item, idx) => (
+                                                                <li key={idx} style={{ marginBottom: '5px', fontSize: '13px' }}>
+                                                                    {item.name} — <span style={{ fontWeight: 'bold', color: '#f1580c' }}>{parseFloat(item.price_at_purchase).toFixed(0)} ₴</span>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                                </tbody>
+                                            ))
                                         )}
-                                        </tbody>
                                     </table>
                                 )}
                             </div>
