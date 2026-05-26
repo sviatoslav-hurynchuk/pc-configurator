@@ -481,17 +481,23 @@ export default function AdminPage() {
                                                     </div>
                                                 </td>
                                             </tr>
-                                            {expandedOrderId === order.id && order.items && order.items.length > 0 && (
+                                            {expandedOrderId === order.id && order.items && (
                                                 <tr style={{ backgroundColor: '#fdfdfd' }}>
                                                     <td colSpan={4} style={{ padding: '15px 20px', borderBottom: '1px solid #eee' }}>
                                                         <div style={{ fontWeight: 'bold', marginBottom: '10px', color: '#666' }}>Склад замовлення:</div>
-                                                        <ul style={{ margin: 0, paddingLeft: '20px', color: '#333' }}>
-                                                            {order.items.map((item, idx) => (
-                                                                <li key={idx} style={{ marginBottom: '5px', fontSize: '13px' }}>
-                                                                    {item.name} — <span style={{ fontWeight: 'bold', color: '#f1580c' }}>{parseFloat(item.price_at_purchase).toFixed(0)} ₴</span>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
+                                                        {order.items.length > 0 ? (
+                                                            <ul style={{ margin: 0, paddingLeft: '20px', color: '#333' }}>
+                                                                {order.items.map((item, idx) => (
+                                                                    <li key={idx} style={{ marginBottom: '5px', fontSize: '13px' }}>
+                                                                        {item.name} — <span style={{ fontWeight: 'bold', color: '#f1580c' }}>{parseFloat(item.price_at_purchase).toFixed(0)} ₴</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        ) : (
+                                                            <div style={{ color: '#999', fontSize: '13px', fontStyle: 'italic' }}>
+                                                                Вміст недоступний (товари були видалені до оновлення системи бази даних).
+                                                            </div>
+                                                        )}
                                                     </td>
                                                 </tr>
                                             )}

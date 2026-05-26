@@ -60,9 +60,9 @@ class OrderModel extends BaseModel {
 
         foreach ($orders as &$order) {
             $stmtItems = $this->db->prepare("
-                SELECT c.name, c.image_url, oi.price_at_purchase 
+                SELECT COALESCE(c.name, 'Застарілий товар') as name, c.image_url, oi.price_at_purchase 
                 FROM order_items oi
-                JOIN components c ON oi.component_id = c.id
+                LEFT JOIN components c ON oi.component_id = c.id
                 WHERE oi.order_id = :order_id
             ");
             $stmtItems->execute(['order_id' => $order['id']]);
@@ -105,9 +105,9 @@ class OrderModel extends BaseModel {
 
         foreach ($orders as &$order) {
             $stmtItems = $this->db->prepare("
-                SELECT c.name, c.image_url, oi.price_at_purchase 
+                SELECT COALESCE(c.name, 'Застарілий товар') as name, c.image_url, oi.price_at_purchase 
                 FROM order_items oi
-                JOIN components c ON oi.component_id = c.id
+                LEFT JOIN components c ON oi.component_id = c.id
                 WHERE oi.order_id = :order_id
             ");
             $stmtItems->execute(['order_id' => $order['id']]);

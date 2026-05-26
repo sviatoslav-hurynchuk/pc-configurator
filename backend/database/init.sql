@@ -74,10 +74,10 @@ CREATE TABLE IF NOT EXISTS order_items
 (
     id                INT AUTO_INCREMENT PRIMARY KEY,
     order_id          INT            NOT NULL,
-    component_id      INT            NOT NULL,
+    component_id      INT            NULL,
     price_at_purchase DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
-    FOREIGN KEY (component_id) REFERENCES components (id) ON DELETE CASCADE
+    FOREIGN KEY (component_id) REFERENCES components (id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS pages

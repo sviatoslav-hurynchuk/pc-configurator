@@ -35,11 +35,9 @@ spl_autoload_register(function ($class) {
     }
 });
 
-// Redirects
 $redirectManager = new \App\Core\RedirectManager();
 $redirectManager->handle($_SERVER['REQUEST_URI'] ?? '/');
 
-// Rate Limiting
 $rateLimiter = new \App\Core\RateLimiter(null, 60, 60);
 $clientIp = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
 if (!$rateLimiter->check($clientIp)) {

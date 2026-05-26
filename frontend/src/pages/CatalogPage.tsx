@@ -13,6 +13,12 @@ function CatalogPage() {
     
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<number | 'all'>('all');
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const itemsPerPage = 8;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, selectedCategory]);
 
     useEffect(() => {
         const loadData = async () => {
@@ -34,6 +40,10 @@ function CatalogPage() {
         const matchesCategory = selectedCategory === 'all' || comp.category_id === selectedCategory;
         return matchesSearch && matchesCategory;
     });
+
+    const totalPages = Math.ceil(filteredComponents.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedComponents = filteredComponents.slice(startIndex, startIndex + itemsPerPage);
 
     return (
         <div style={{ backgroundColor: '#f9f9f9', minHeight: '100vh' }}>
@@ -143,9 +153,9 @@ function CatalogPage() {
                                 display: 'grid',
                                 gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
                                 gap: '20px',
-                                paddingBottom: '40px'
+                                paddingBottom: '20px'
                             }}>
-                                {filteredComponents.map(item => (
+                                {paginatedComponents.map(item => (
                                     <ComponentCard 
                                         key={item.id} 
                                         item={item} 
@@ -174,6 +184,52 @@ function CatalogPage() {
                                     }}
                                 >
                                     Скинути фільтри
+                                </button>
+                            </div>
+                        )}
+
+                        {totalPages > 1 && (
+                            <div style={{ 
+                                display: 'flex', 
+                                justifyContent: 'center', 
+                                alignItems: 'center', 
+                                gap: '15px', 
+                                paddingBottom: '40px' 
+                            }}>
+                                <button 
+                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                    disabled={currentPage === 1}
+                                    style={{ 
+                                        padding: '8px 20px', 
+                                        borderRadius: '20px', 
+                                        border: '1px solid #ccc', 
+                                        backgroundColor: currentPage === 1 ? '#f1f1f1' : '#fff',
+                                        color: currentPage === 1 ? '#999' : '#333',
+                                        cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    Попередня
+                                </button>
+                                
+                                <span style={{ fontWeight: 'bold', color: '#666' }}>
+                                    Сторінка {currentPage} з {totalPages}
+                                </span>
+                                
+                                <button 
+                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                    disabled={currentPage === totalPages}
+                                    style={{ 
+                                        padding: '8px 20px', 
+                                        borderRadius: '20px', 
+                                        border: '1px solid #ccc', 
+                                        backgroundColor: currentPage === totalPages ? '#f1f1f1' : '#fff',
+                                        color: currentPage === totalPages ? '#999' : '#333',
+                                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    Наступна
                                 </button>
                             </div>
                         )}

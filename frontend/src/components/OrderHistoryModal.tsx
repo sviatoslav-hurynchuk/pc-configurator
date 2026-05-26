@@ -124,12 +124,18 @@ export default function OrderHistoryModal({ isOpen, onClose }: OrderHistoryModal
                                     </div>
 
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                        {order.items.map((item: any, idx: number) => (
-                                            <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
-                                                <span style={{ color: '#555' }}>- {item.name}</span>
-                                                <span style={{ fontWeight: 'bold', color: '#333' }}>{parseFloat(item.price_at_purchase).toFixed(0)} ₴</span>
+                                        {order.items && order.items.length > 0 ? (
+                                            order.items.map((item: any, idx: number) => (
+                                                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
+                                                    <span style={{ color: '#555' }}>- {item.name}</span>
+                                                    <span style={{ fontWeight: 'bold', color: '#333' }}>{parseFloat(item.price_at_purchase).toFixed(0)} ₴</span>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div style={{ color: '#999', fontSize: '13px', fontStyle: 'italic', marginTop: '10px' }}>
+                                                Вміст недоступний (товари були видалені до оновлення системи бази даних).
                                             </div>
-                                        ))}
+                                        )}
                                     </div>
                                 </div>
                             ))}
