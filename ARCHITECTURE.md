@@ -27,7 +27,7 @@ According to the requirements, the system consists of 5 independent functional m
 ## 3. Administration System (Admin Panel)
 
 * **Access:** Protected routing. Access is granted only after verifying login/password (with `password_hash`) and checking the user role (`role === 'admin'`).
-* **Functionality (CRUD):** Adding, editing, and deleting components, managing orders, publishing news.
+* **Functionality (CRUD):** Adding, editing, and deleting components, managing orders (viewing details, changing status), publishing news, catalog pagination.
 * **Mode Switching:** A special mechanism is provided (a button in the navigation for administrators) "Exit editing mode" for quick transition between the admin panel and the public part of the site.
 
 ---
@@ -40,7 +40,7 @@ The architecture is designed to cover all course topics:
 * **Lab 3 (Cookie, Session, Files):** Authorization works via `$_SESSION`. File handling is implemented in the admin panel when uploading component images (`move_uploaded_file`).
 * **Lab 4 (OOP in PHP):** The entire backend is built on classes (interfaces, inheritance, encapsulation). MVC Pattern: `Router`, `Controller`, `Model`.
 * **Lab 5 (PDO):** All queries to MySQL are executed exclusively through prepared statements of the PDO library for protection against SQL injections.
-* **Lab 6 (Asynchronous requests and JSON):** The PC configurator operates via AJAX (Fetch API). The client sends a request to change a part, the backend returns `Content-Type: application/json`.
+* **Lab 6 (Asynchronous requests and JSON):** The PC configurator operates via AJAX (Fetch API / Axios). The client sends a request to change a part, the backend returns `Content-Type: application/json`.
 * **Lab 7 (HTTP statuses and Buffering):**
   * Implemented a `Response` class that uses `ob_start()`, `ob_get_contents()`, and `ob_clean()`.
   * Pages are first generated into a buffer. If an error occurs during generation (e.g., product not found), the buffer is cleared (`ob_clean`), a status code is set (`http_response_code(404)`), and a special error page is displayed.
@@ -56,13 +56,15 @@ The architecture is designed to cover all course topics:
 5. `order_items` (id, order_id, component_id, price_at_purchase)
 6. `pages` (id, title, content, slug, is_published)
 7. `auth_tokens` (id, user_id, series, token_hash, expires_at)
+
 ---
 
 ## 6. Development Roadmap
 
 - [x] **Phase 1: Infrastructure.** Docker setup, DB initialization (`init.sql`).
 - [x] **Phase 2: Core.** Creating base MVC classes (Router, Database PDO, Controller, Model). Implementation of output buffering (Lab 7).
-- [x] **Phase 3: Catalog and Configurator.** Displaying products. Writing a JSON API for data exchange between React/JS and PHP (Lab 6).
+- [x] **Phase 3: Catalog and Configurator.** Displaying products. Writing a JSON API for data exchange between React/TS and PHP (Lab 6).
 - [x] **Phase 4: Authorization and Users.** Registration, login, sessions (Lab 3).
 - [x] **Phase 5: Orders & Builds.** Saving configurations to the database, linking users with their builds, calculating final logic.
-- [ ] **Phase 6: Admin Panel & Finalization.** CRUD for components, photo uploads, routing protection, testing and report preparation.
+- [x] **Phase 6: Admin Panel & Finalization.** CRUD for components, photo uploads, routing protection, admin order management, catalog pagination.
+- [x] **Phase 7: Testing & CI/CD.** Frontend unit testing (Vitest), GitHub Actions CI workflow, security optimizations, UI enhancements.
